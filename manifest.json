@@ -2,7 +2,7 @@
   "name": "Я в натуре Юрист v3.4 Professional",
   "short_name": "Юрист v3.4",
   "description": "Расширенный тренажёр знаний (60 вопросов), интерактивная учебная мастерская права, офлайн-памятки и подготовка проектов правовых документов",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",

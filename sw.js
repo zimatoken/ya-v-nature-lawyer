@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lawyer-v3.4-professional';
+const CACHE_NAME = 'lawyer-v3.5-professional';
 const CORE_ASSETS = ['./', './index.html', './lawyer-font.js', './manifest.json', './icon-192.png', './icon-512.png', './modules/lawyer/data/adapter.js', './modules/lawyer/data/consumer.js', './modules/lawyer/data/debts.js', './modules/lawyer/data/divorce.js', './modules/lawyer/data/dtp.js', './modules/lawyer/data/housing.js', './modules/lawyer/data/inheritance.js', './modules/lawyer/data/labor.js', './modules/lawyer/data/police.js', './modules/lawyer/data/student-quiz-bank.js'];
 self.addEventListener('install', event => { event.waitUntil((async()=>{const c=await caches.open(CACHE_NAME);await Promise.all(CORE_ASSETS.map(async a=>{try{await c.add(a)}catch(e){console.warn('[Lawyer SW] Не удалось закешировать:',a)}}));await self.skipWaiting()})()) });
 self.addEventListener('activate', event => {event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('lawyer-')&&k!==CACHE_NAME).map(k=>caches.delete(k)));await self.clients.claim()})())});
