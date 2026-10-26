@@ -1,0 +1,25 @@
+{
+  "name": "Я в натуре Юрист v3.4 Professional",
+  "short_name": "Юрист v3.4",
+  "description": "Расширенный тренажёр знаний (60 вопросов), интерактивная учебная мастерская права, офлайн-памятки и подготовка проектов правовых документов",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0c1426",
+  "theme_color": "#0c1426",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

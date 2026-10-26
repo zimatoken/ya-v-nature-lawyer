@@ -1,0 +1,3554 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0c1426">
+  <meta name="description" content="Личный помощник для фиксации обстоятельств и подготовки проектов юридических документов.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Я в натуре Юрист — правовой помощник</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+      <!-- 🔤 ШРИФТ ДЛЯ PDF: файл должен лежать рядом с index.html -->
+      <script src="lawyer-font.js"></script>
+      <style>
+        * { box-sizing: border-box; }
+        .gold-icon { width: 1.15em; height: 1.15em; display:inline-block; vertical-align:-0.18em; fill:none; stroke:var(--z-gold,#E7BE67); stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto; }
+        .ui-icon { display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; margin-right:3px; }
+        .ui-icon .gold-icon { width:1.15em; height:1.15em; }
+        .scenario-icon { display:flex; justify-content:flex-start; margin:0 0 8px; }
+        .scenario-icon .gold-icon { width:28px; height:28px; }
+        .scenario-xp { font-size:12px; color:var(--z-muted,#9eacc3); margin-top:4px; }
+        .navigator-back { margin: 0 0 12px; background: transparent !important; border: 1px solid var(--z-gold,#E7BE67) !important; color: var(--z-gold,#E7BE67) !important; }
+        .navigator-back:hover { background: rgba(231,190,103,.08) !important; }
+
+        body {
+          font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 20px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          min-height: 100vh;
+          color: #1a1a2e;
+        }
+        .container {
+          background: white;
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+          font-size: 26px;
+          color: #2d3748;
+          margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .subtitle {
+          color: #718096;
+          margin-bottom: 24px;
+          font-size: 14px;
+        }
+        .top-nav {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin: 0 0 18px;
+          padding: 10px 12px;
+          background: rgba(10,16,28,0.72);
+          border: 1px solid rgba(133,150,176,0.3);
+          border-radius: 12px;
+          backdrop-filter: blur(10px);
+        }
+        .nav-btn,
+        .subnav-btn {
+          border: 1px solid rgba(139,161,190,0.28);
+          background: rgba(18,28,43,0.9);
+          color: #edf3ff;
+          padding: 10px 14px;
+          border-radius: 10px;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .nav-btn:hover,
+        .subnav-btn:hover {
+          border-color: rgba(231,190,103,0.7);
+          transform: translateY(-1px);
+        }
+        .nav-btn.is-active,
+        .subnav-btn.is-active {
+          background: linear-gradient(135deg, rgba(231,190,103,0.18), rgba(92,114,182,0.18));
+          border-color: rgba(231,190,103,0.9);
+          color: #f4e8c4;
+          box-shadow: 0 0 0 1px rgba(231,190,103,0.25);
+        }
+        .subnav {
+          margin-left: auto;
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        [data-section-group][hidden] {
+          display: none !important;
+        }
+        .app-shell {
+          display: block;
+        }
+        .xp-badge {
+          background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+          color: white;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 13px;
+          font-weight: bold;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          margin-left: auto;
+        }
+        .card {
+          background: #f7fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 20px;
+          margin: 16px 0;
+        }
+        .card-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2d3748;
+          margin-bottom: 12px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .scenario-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        .scenario-btn {
+          padding: 16px;
+          border: 2px solid #e2e8f0;
+          background: white;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.3s;
+          text-align: left;
+          font-size: 14px;
+          font-weight: 500;
+        }
+        .scenario-btn:hover {
+          border-color: #667eea;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(102,126,234,0.2);
+        }
+        .scenario-btn.active {
+          border-color: #667eea;
+          background: #ebf8ff;
+          box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        .dialog-box {
+          background: white;
+          border-left: 4px solid #667eea;
+          padding: 16px;
+          margin: 16px 0;
+          border-radius: 8px;
+        }
+        .dialog-question {
+          font-size: 15px;
+          font-weight: 600;
+          margin-bottom: 12px;
+          color: #2d3748;
+        }
+        .options-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        button {
+          padding: 10px 16px;
+          border: none;
+          border-radius: 8px;
+          background: #667eea;
+          color: white;
+          font-size: 14px;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-weight: 500;
+        }
+        button:hover {
+          background: #5568d3;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+        }
+        button.sec {
+          background: #e2e8f0;
+          color: #4a5568;
+        }
+        button.sec:hover {
+          background: #cbd5e0;
+        }
+        button.warn {
+          background: #fc8181;
+        }
+        button.warn:hover {
+          background: #f56565;
+        }
+        button.success {
+          background: #48bb78;
+        }
+        button.success:hover {
+          background: #38a169;
+        }
+        input, select, textarea {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          font-size: 14px;
+          margin: 4px 0;
+        }
+        input:focus, select:focus, textarea:focus {
+          outline: none;
+          border-color: #667eea;
+          box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        .evidence-list {
+          list-style: none;
+          padding: 0;
+          margin: 12px 0;
+        }
+        .evidence-list li {
+          padding: 10px;
+          background: white;
+          border-radius: 6px;
+          margin: 6px 0;
+          font-size: 13px;
+          border-left: 3px solid #667eea;
+        }
+        .evidence-list li.geo { border-left-color: #4299e1; }
+        .evidence-list li.note { border-left-color: #48bb78; }
+        .evidence-list li.witness { border-left-color: #ed8936; }
+        .evidence-list li.photo { border-left-color: #9f7aea; }
+        .validation-warning {
+          background: #fff5f5;
+          border: 1px solid #fc8181;
+          color: #c53030;
+          padding: 12px;
+          border-radius: 8px;
+          margin: 12px 0;
+          font-size: 13px;
+        }
+        .document-preview {
+          background: #fffbeb;
+          border: 1px dashed #d69e2e;
+          padding: 20px;
+          border-radius: 8px;
+          font-family: Georgia, serif;
+          white-space: pre-wrap;
+          line-height: 1.6;
+          margin: 16px 0;
+          max-height: 400px;
+          overflow-y: auto;
+        }
+        .footer {
+          margin-top: 24px;
+          padding-top: 16px;
+          border-top: 1px solid #e2e8f0;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+        .notification {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #48bb78;
+          color: white;
+          padding: 16px 20px;
+          border-radius: 10px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+          animation: slideIn 0.3s ease-out;
+          z-index: 1000;
+          font-weight: 600;
+        }
+        @keyframes slideIn {
+          from { transform: translateX(400px); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        .tag {
+          display: inline-block;
+          background: #ebf8ff;
+          color: #3182ce;
+          padding: 3px 8px;
+          border-radius: 4px;
+          font-size: 11px;
+          margin-left: 6px;
+          font-weight: 600;
+        }
+        /* 🩺 Health Score */
+        #scoreWrap {
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 16px;
+          margin: 16px 0;
+        }
+        #scoreBarBg {
+          background: #edf2f7;
+          border-radius: 8px;
+          height: 24px;
+          overflow: hidden;
+          margin-top: 8px;
+        }
+        #scoreBar {
+          height: 100%;
+          width: 0%;
+          border-radius: 8px;
+          transition: width 0.4s, background 0.4s;
+          background: #fc8181;
+        }
+        #scoreLabel {
+          font-size: 13px;
+          margin-top: 8px;
+          color: #4a5568;
+          font-weight: 500;
+        }
+        /* 🧱 Конструктор */
+        .blk {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          padding: 8px 12px;
+          margin: 4px;
+          font-size: 14px;
+          cursor: pointer;
+          user-select: none;
+          transition: background 0.2s;
+        }
+        .blk:hover { background: #edf2f7; }
+        .blk input { width: auto; margin: 0; accent-color: #667eea; cursor: pointer; }
+        /* 📚 История */
+        #historyList {
+          list-style: none;
+          padding: 0;
+        }
+        #historyList li {
+          font-size: 14px;
+          cursor: pointer;
+          margin-bottom: 8px;
+          padding: 10px;
+          background: white;
+          border-radius: 6px;
+          border-left: 3px solid #667eea;
+          transition: background 0.2s;
+        }
+        #historyList li:hover { background: #edf2f7; }
+        .notice {
+          background: #ebf8ff;
+          color: #2c5282;
+          padding: 12px;
+          border-radius: 8px;
+          font-size: 13px;
+          margin-bottom: 16px;
+          border-left: 4px solid #4299e1;
+        }
+        .disclaimer-block {
+          margin: 12px 0 18px;
+          padding: 14px 16px;
+          border-left: 4px solid #fbbf24;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #fff7ed, #ffedd5);
+          color: #7c2d12;
+          font-size: 13px;
+          line-height: 1.6;
+        }
+        .disclaimer-block a {
+          color: #7c2d12;
+          text-decoration: underline;
+        }
+
+        /* ZIMA LEGAL — dark premium design layer */
+        :root {
+          color-scheme: dark;
+          --bg: #0c1426;
+          --panel: #111d33;
+          --panel-2: #16243d;
+          --line: rgba(180, 198, 226, .16);
+          --text: #eef3fc;
+          --muted: #9cabc4;
+          --gold: #e7be67;
+          --violet: #8a8cf5;
+        }
+        html { background: var(--bg); }
+        body {
+          max-width: 1000px;
+          padding: clamp(12px, 3vw, 28px);
+          color: var(--text);
+          background: radial-gradient(ellipse at 15% 0%, rgba(102,126,234,.20), transparent 42%),
+                      radial-gradient(ellipse at 100% 18%, rgba(118,75,162,.18), transparent 36%), var(--bg);
+          line-height: 1.55;
+        }
+        .container {
+          padding: clamp(18px, 3vw, 32px);
+          color: var(--text);
+          background: linear-gradient(155deg, rgba(20,33,56,.98), rgba(12,21,38,.98));
+          border: 1px solid var(--line);
+          border-radius: 22px;
+          box-shadow: 0 24px 80px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.035);
+        }
+        h1 { color: #f6f8ff; font-size: clamp(22px, 3.8vw, 30px); letter-spacing: -.035em; }
+        .subtitle { color: var(--muted); }
+        .xp-badge {
+          background: rgba(231,190,103,.12); color: var(--gold);
+          border: 1px solid rgba(231,190,103,.28); border-radius: 999px;
+        }
+        .card, #scoreWrap {
+          color: var(--text); background: rgba(17,29,51,.82);
+          border: 1px solid var(--line); border-radius: 16px;
+          box-shadow: 0 8px 24px rgba(0,0,0,.12);
+        }
+        .card-title { color: #edf3ff; }
+        .scenario-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: 14px; }
+        .scenario-btn {
+          color: var(--text); background: linear-gradient(145deg, rgba(25,41,68,.96), rgba(17,29,49,.96));
+          border: 1px solid var(--line); border-radius: 14px; min-height: 118px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.025); line-height: 1.45;
+        }
+        .scenario-btn:hover { border-color: rgba(138,140,245,.65); background: #1a2a47; box-shadow: 0 12px 28px rgba(0,0,0,.2); }
+        .scenario-btn.active { border-color: var(--gold); background: linear-gradient(145deg, rgba(91,77,49,.30), rgba(29,39,61,.98)); box-shadow: 0 0 0 1px rgba(231,190,103,.16); }
+        .dialog-box { color: var(--text); background: #0e192c; border-left-color: var(--gold); border-radius: 12px; }
+        .dialog-question { color: #f4f6fc; }
+        button {
+          color: #11182a; background: linear-gradient(135deg, #e8c779, #c99b45);
+          border: 1px solid rgba(255,255,255,.12); border-radius: 10px; font-weight: 650;
+          box-shadow: 0 4px 14px rgba(201,155,69,.12);
+        }
+        button:hover { background: linear-gradient(135deg, #f1d58f, #dfb45f); box-shadow: 0 7px 18px rgba(201,155,69,.2); }
+        button.sec { color: #e4ebf8; background: #1b2a43; border: 1px solid var(--line); box-shadow: none; }
+        button.sec:hover { background: #263955; }
+        button.warn { color: #fff; background: #9b3949; }
+        button.success { color: #0e241b; background: #91d2ae; }
+        input, select, textarea {
+          color: var(--text); background: #0b1628; border-color: rgba(180,198,226,.22); border-radius: 10px;
+        }
+        input::placeholder, textarea::placeholder { color: #7485a2; }
+        input:focus, select:focus, textarea:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(138,140,245,.15); }
+        .evidence-list li, #historyList li, .blk {
+          color: #e8eef9; background: #14223a; border: 1px solid var(--line); border-left: 3px solid var(--violet); border-radius: 10px;
+        }
+        .evidence-list li.note { border-left-color: #8ac7a2; }
+        .evidence-list li.witness { border-left-color: var(--gold); }
+        .evidence-list li.photo { border-left-color: #a99af8; }
+        .validation-warning { color: #ffe2b7; background: rgba(150,93,35,.18); border-color: rgba(231,190,103,.35); }
+        .document-preview {
+          color: #20283a; background: #f7f5ef; border: 1px solid #d8c99f;
+          border-radius: 12px; box-shadow: inset 0 0 0 4px rgba(231,190,103,.08);
+        }
+        .notice {
+          color: #f4dca4; background: rgba(126,91,34,.16); border: 1px solid rgba(231,190,103,.28);
+          border-left: 4px solid var(--gold); border-radius: 12px;
+        }
+        [data-theme="dark"] .disclaimer-block {
+          background: linear-gradient(135deg, #78350f, #92400e);
+          color: #fef3c7;
+          border-left-color: #fbbf24;
+        }
+        [data-theme="dark"] .disclaimer-block a {
+          color: #fef3c7;
+        }
+        #scoreBarBg { background: #263650; }
+        #scoreLabel { color: var(--muted); }
+        .footer { border-top-color: var(--line); color: var(--muted); }
+        .tag { color: #d8d9ff; background: rgba(138,140,245,.16); border: 1px solid rgba(138,140,245,.18); }
+        .blk:hover, #historyList li:hover { background: #20314d; }
+        .notification { border: 1px solid rgba(255,255,255,.18); }
+        .scenario-btn [style*="color: #718096"] { color: var(--muted) !important; }
+        :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+        @media (max-width: 560px) {
+          body { padding: 8px; }
+          .container { padding: 15px; border-radius: 16px; }
+          h1 { align-items: flex-start; flex-wrap: wrap; }
+          .xp-badge { margin-left: 0; }
+          .scenario-btn { min-height: 100px; }
+          button { max-width: 100%; }
+        }
+
+        /* ZIMA LEGAL — authoritative navy/gold theme (v2.3) */
+        :root { color-scheme: dark; --z-bg:#0c1426; --z-panel:#111d33; --z-panel2:#172640; --z-line:#293954; --z-text:#edf2fb; --z-muted:#9eacc3; --z-gold:#e7be67; }
+        html, body { background: var(--z-bg) !important; color: var(--z-text) !important; }
+        body { background-image: radial-gradient(ellipse at 12% 0%, rgba(231,190,103,.075), transparent 38%), radial-gradient(ellipse at 100% 12%, rgba(66,91,133,.17), transparent 34%) !important; }
+        .container { background: linear-gradient(155deg,#142138 0%,#0d1729 100%) !important; color:var(--z-text) !important; border:1px solid var(--z-line) !important; box-shadow:0 24px 70px rgba(0,0,0,.34), inset 0 1px rgba(255,255,255,.025) !important; }
+        h1,.card-title,.dialog-question { color:#f4f6fc !important; }
+        .subtitle,#scoreLabel { color:var(--z-muted) !important; }
+        .card,#scoreWrap { background:#111d33 !important; color:var(--z-text) !important; border:1px solid var(--z-line) !important; }
+        .scenario-btn { background:linear-gradient(145deg,#192943,#111d31) !important; color:var(--z-text) !important; border:1px solid #2b3c58 !important; }
+        .scenario-btn:hover { background:#20314d !important; border-color:#8c7545 !important; }
+        .scenario-btn.active { background:linear-gradient(145deg,#302b23,#1b2940) !important; border:1px solid var(--z-gold) !important; box-shadow:0 0 0 1px rgba(231,190,103,.14) !important; }
+        .dialog-box { background:#0c1729 !important; color:var(--z-text) !important; border-left-color:var(--z-gold) !important; }
+        button { background:linear-gradient(135deg,#e8c779,#c99b45) !important; color:#111827 !important; border:1px solid rgba(255,255,255,.1) !important; }
+        button.sec { background:#1b2a43 !important; color:#e8eef9 !important; border:1px solid #30415d !important; }
+        button.warn { background:#873847 !important; color:#fff !important; }
+        button.success { background:#b8d7c2 !important; color:#10271b !important; }
+        input,select,textarea { background:#0b1628 !important; color:var(--z-text) !important; border-color:#34445e !important; }
+        input::placeholder,textarea::placeholder { color:#8493ab !important; }
+        .evidence-list li,#historyList li,.blk { background:#14223a !important; color:#e8eef9 !important; border-color:#2b3c58 !important; }
+        .notice { background:#272519 !important; color:#f0dca9 !important; border:1px solid #5c4a29 !important; border-left:4px solid var(--z-gold) !important; }
+        .validation-warning { background:#321e28 !important; color:#ffdce2 !important; border-color:#70404b !important; }
+        #scoreBarBg { background:#263650 !important; }
+        .document-preview { background:#f7f5ef !important; color:#20283a !important; border-color:#d8c99f !important; }
+        .footer { border-top-color:#293954 !important; }
+        .xp-badge { background:#30291d !important; color:var(--z-gold) !important; border:1px solid #65502b !important; }
+        .tag { background:#252a43 !important; color:#dedfff !important; }
+        :focus-visible { outline:2px solid var(--z-gold) !important; outline-offset:3px; }
+
+
+        /* Legal Radar + Family Kit */
+        .tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}
+        .tool-tile{padding:16px;border:1px solid #2b3c58;border-radius:13px;background:linear-gradient(145deg,#192943,#111d31);color:var(--z-text)}
+        .tool-tile h3{margin:0 0 7px;color:#f4f6fc;font-size:15px}
+        .tool-tile p{margin:0 0 12px;color:var(--z-muted);font-size:13px}
+        .tool-result{padding:16px;margin-top:14px;border:1px solid #65502b;border-radius:12px;background:#171f2e;color:#edf2fb;white-space:normal}
+        .tool-result h3{color:var(--z-gold);margin-top:0}
+        .tool-result li{margin:7px 0}
+        .legal-meta{font-size:12px;color:var(--z-muted);margin-top:10px}
+        .danger-note{border-left:3px solid #c76b76;padding:10px 12px;background:#2a1d2a;border-radius:8px;color:#ffe3e7}
+        .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+        .pill{display:inline-block;padding:4px 8px;border:1px solid #354761;border-radius:999px;color:#dce6f8;font-size:12px}
+        @media print{body{background:#fff!important;color:#111!important}.container{background:#fff!important;color:#111!important;box-shadow:none!important;border:none!important}.no-print{display:none!important}.tool-result{color:#111!important;background:#fff!important;border:1px solid #aaa!important}}
+
+      
+        /* Student mode v3.0 — isolated from legal-aid flow */
+        .student-mode-launch{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 20px}
+        .student-launch-btn{display:inline-flex;align-items:center;gap:9px;padding:11px 16px;border:1px solid #8f7848;border-radius:12px;background:#17243a;color:#f0d28b;font-weight:700;cursor:pointer}
+        .student-launch-btn:hover,.student-secondary-btn:hover{filter:brightness(1.12)}
+        .student-launch-note{font-size:.86rem;color:#9eacc1}
+        .student-mode-card{border:1px solid #5c523c;background:linear-gradient(145deg,#111d33,#0e1728)}
+        .student-intro,.student-question-box p,.student-source-note p{color:#b8c4d6;line-height:1.55}
+        .student-toolbar{display:grid;grid-template-columns:1fr;gap:7px;margin:16px 0}
+        .student-toolbar label,.student-question-box label{color:#e7c77c;font-weight:650}
+        .student-toolbar select,.student-toolbar input,.student-question-box textarea{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #33445e;border-radius:9px;background:#0b1424;color:#edf2fa;font:inherit}
+        .student-lesson-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:16px 0}
+        .student-lesson{border:1px solid #2d3d56;border-radius:12px;padding:15px;background:#121f34}
+        .student-lesson h3{margin:0 0 8px;color:#f0d28b;font-size:1.02rem;cursor:pointer;display:flex;align-items:center;gap:8px}
+        .student-lesson h3::after{content:'▼';font-size:.8rem;transition:transform .2s}
+        .student-lesson.expanded h3::after{transform:rotate(180deg)}
+        .student-lesson p{line-height:1.5;color:#c3cede;margin:8px 0}
+        .student-lesson .student-task{padding:10px;border-left:2px solid #b99b59;background:#0d1829;color:#d8e0ec;font-size:.92rem}
+        .student-lesson .student-details{display:none;margin-top:12px;padding-top:12px;border-top:1px solid #2d3d56}
+        .student-lesson.expanded .student-details{display:block}
+        .student-lesson .student-keywords{font-size:.9rem;color:#9eacc3;margin:8px 0}
+        .student-lesson .student-keywords b{color:#e7c77c}
+        .student-lesson a,.student-source-note a{color:#e7c77c;text-underline-offset:3px}
+        .student-question-box,.student-source-note{margin-top:18px;padding:15px;border:1px solid #2d3d56;border-radius:12px;background:#0d1829}
+        .student-question-box h3{margin-top:0}
+        .student-question-actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+        .student-secondary-btn{margin-top:0;padding:10px 14px;border:1px solid #8f7848;border-radius:9px;background:#1a2a40;color:#f0d28b;font-weight:700;cursor:pointer}
+        .student-study-plan{margin-top:14px;padding:14px;border-radius:10px;background:#15243a;color:#dce5f1;line-height:1.6}
+        .student-study-plan ol{padding-left:22px}
+        .student-empty{color:#b8c4d6;padding:16px;border:1px dashed #40516a;border-radius:10px}
+        @media(min-width:680px){.student-toolbar{grid-template-columns:150px minmax(180px,1fr) 100px minmax(220px,2fr);align-items:center}}
+
+        /* Тренажёр знаний v3.1 */
+        .student-trainer-section{margin-top:20px;padding:16px;border:1px solid #5c523c;border-radius:12px;background:linear-gradient(145deg,#111d33,#0e1728)}
+        .student-trainer-section h3{margin:0 0 8px;color:#f0d28b;font-size:1.02rem}
+        .trainer-topic-select{margin:12px 0}
+        .trainer-topic-select label{color:#e7c77c;font-weight:650;display:block;margin-bottom:6px}
+        .trainer-topic-select select{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #33445e;border-radius:9px;background:#0b1424;color:#edf2fa;font:inherit}
+        .trainer-game-area{margin-top:16px}
+        .trainer-progress{color:#b8c4d6;font-size:14px;margin-bottom:12px}
+        .trainer-question{color:#f4f6fc;font-size:16px;font-weight:600;margin-bottom:16px;line-height:1.5}
+        .trainer-options{display:flex;flex-direction:column;gap:10px}
+        .trainer-option-btn{padding:14px 16px;border:1px solid #2d3d56;border-radius:10px;background:#121f34;color:#e8eef9;text-align:left;font-size:14px;cursor:pointer;transition:all 0.2s}
+        .trainer-option-btn:hover{background:#1a2a40;border-color:#8c7545}
+        .trainer-option-btn.correct{background:#1a3d2a;border-color:#48bb78;color:#f0fff4}
+        .trainer-option-btn.incorrect{background:#3d1a2a;border-color:#fc8181;color:#fff5f5}
+        .trainer-option-btn:disabled{cursor:not-allowed;opacity:0.7}
+        .trainer-feedback{margin-top:16px;padding:14px;border-radius:10px;background:#0d1829;border:1px solid #2d3d56;line-height:1.5}
+        .trainer-feedback.correct{border-color:#48bb78;background:#1a3d2a}
+        .trainer-feedback.incorrect{border-color:#fc8181;background:#3d1a2a}
+        .trainer-result{margin-top:16px;padding:16px;border-radius:10px;background:#15243a;border:1px solid #5c523c}
+        .trainer-result h3{margin:0 0 12px;color:#f0d28b}
+        .trainer-result-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+
+
+        /* v3.4 Professional: user-first routes and four-section navigation */
+        .top-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:sticky;top:8px;z-index:20;background:rgba(10,16,28,.94);box-shadow:0 8px 24px rgba(0,0,0,.16)}
+        .nav-btn{min-height:44px;white-space:nowrap}
+        .route-hero{margin:10px 0 18px;padding:22px 18px;border-radius:16px;background:linear-gradient(145deg,#18283b,#20344a);border:1px solid rgba(231,190,103,.22);color:#edf3ff}
+        .route-hero h2 { margin: 0 0 6px; text-align: center; font-size: clamp(22px,3vw,29px); color: #ffffff; font-weight: 700; }
+        .route-hero>p{text-align:center;color:#c5d1e1;margin:0 0 16px}
+        /* Исправленный блок быстрых маршрутов */
+        .quick-route-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        /* Повышаем специфичность через div, чтобы перебить глобальный button */
+        .quick-route {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: center;
+          gap: 5px;
+          min-height: 78px;
+          padding: 14px 16px;
+          border: 1px solid rgba(166, 190, 220, .16);
+          border-radius: 12px;
+          /* Возвращаем тёмно-синий фон вместо золотого */
+          background: #26394e !important; 
+          color: #f4f7fc !important; 
+          font: 600 15px/1.3 "Segoe UI", system-ui, sans-serif;
+          text-align: left;
+          cursor: pointer;
+          transition: background .18s, border-color .18s, transform .18s;
+          box-shadow: none !important; /* Убираем золотую тень от глобальной кнопки */
+        }
+
+        /* Эффект при наведении */
+        .quick-route:hover, 
+        .quick-route:focus-visible {
+          background: #304760 !important;
+          border-color: #e7be67 !important;
+          transform: translateY(-1px);
+          outline: none;
+        }
+
+        /* Исправление для заголовка и описания в карточках */
+        .quick-route strong,
+        .quick-route span,
+        .scenario-btn strong,
+        .scenario-btn span {
+          display: block; /* Заставляет элементы идти друг под другом */
+          width: 100%;
+        }
+
+        .quick-route strong,
+        .scenario-btn strong {
+          font-size: 16px;
+          font-weight: 700;
+          color: #fff;
+        }
+
+        .scenario-btn strong {
+          margin-bottom: 4px;
+        }
+
+        .quick-route span {
+          display: block;
+          width: 100%;
+          margin-top: 4px;
+          font-size: 12px;
+          font-weight: 400;
+          color: #c7d3e3;
+        }
+
+        .scenario-btn span {
+          font-size: 13px;
+          color: #c7d3e3;
+          line-height: 1.4;
+        }
+
+        .all-scenarios-link{display:block;margin:12px auto 0;border:0;background:transparent;color:#d9e5f5;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:13px}
+        .all-scenarios-card[hidden]{display:none!important}
+        .all-scenarios-card{scroll-margin-top:90px}
+        .disclaimer-block{line-height:1.55}
+        @media(max-width:560px){body{padding:10px}.container{padding:14px}.top-nav{gap:6px;padding:8px;top:4px}.nav-btn{padding:10px 4px;font-size:12px}.quick-route-grid{grid-template-columns:1fr}.quick-route{min-height:66px}.route-hero{padding:18px 12px}.xp-badge{margin-left:auto}}
+        @media(min-width:561px) and (max-width:760px){.top-nav{grid-template-columns:repeat(4,minmax(0,1fr))}.nav-btn{padding:10px 6px;font-size:12px}}
+        @media(prefers-reduced-motion:reduce){.quick-route{transition:none}.quick-route:hover{transform:none}}
+
+</style>
+      <!-- Модули сценариев: загружаются после адаптера -->
+      <script src="modules/lawyer/data/adapter.js"></script>
+      <script src="modules/lawyer/data/consumer.js"></script>
+      <script src="modules/lawyer/data/debts.js"></script>
+      <script src="modules/lawyer/data/divorce.js"></script>
+      <script src="modules/lawyer/data/dtp.js"></script>
+      <script src="modules/lawyer/data/housing.js"></script>
+      <script src="modules/lawyer/data/inheritance.js"></script>
+      <script src="modules/lawyer/data/labor.js"></script>
+      <script src="modules/lawyer/data/police.js"></script>
+  <base target="_blank">
+</head>
+      <body>
+      <div class="container">
+        <nav class="top-nav" aria-label="Основная навигация">
+          <button type="button" class="nav-btn is-active" data-section="home" aria-current="page"><span aria-hidden="true">⌂</span> Главная</button>
+          <button type="button" class="nav-btn" data-section="cases"><span aria-hidden="true">▣</span> Мои дела</button>
+          <button type="button" class="nav-btn" data-section="learning"><span aria-hidden="true">▱</span> Обучение</button>
+          <button type="button" class="nav-btn" data-section="more"><span aria-hidden="true">☰</span> Ещё</button>
+        </nav>
+        <div id="top-hero" data-section-group="home">
+          <h1><span class="ui-icon" data-icon="shield-check"></span> Я в натуре Юрист <span class="xp-badge">⭐ <span id="xpValue">0</span> XP</span></h1>
+          <section class="route-hero" aria-labelledby="routeTitle">
+            <h2 id="routeTitle">Что у вас случилось?</h2>
+            <p>Выберите ситуацию — разберёмся с первым шагом.</p>
+            <div class="quick-route-grid">
+              <button type="button" class="quick-route" data-route="police" onclick="openQuickRoute('police')"><strong>Полиция и права</strong> <span>Задержание, общение с полицией, защита прав</span></button>
+              <button type="button" class="quick-route" data-route="work" onclick="openQuickRoute('work')"><strong>Работа и зарплата</strong> <span>Увольнение, выплаты, трудовые споры</span></button>
+              <button type="button" class="quick-route" data-route="housing" onclick="openQuickRoute('housing')"><strong>Жильё и ЖКХ</strong> <span>Коммунальные услуги, жильцы, управляющая компания</span></button>
+              <button type="button" class="quick-route" data-route="debts" onclick="openQuickRoute('debts')"><strong>Деньги и долги</strong> <span>Взыскания, требования, задолженности</span></button>
+              <button type="button" class="quick-route" data-route="dtp" onclick="openQuickRoute('dtp')"><strong>ДТП и возмещение</strong> <span>Обстоятельства, доказательства, ущерб</span></button>
+              <button type="button" class="quick-route" data-route="document" onclick="openQuickRoute('document')"><strong>Составить документ</strong> <span>Подготовить заявление или претензию</span></button>
+            </div>
+            <button type="button" class="all-scenarios-link" id="allScenariosToggle" aria-expanded="false" aria-controls="allScenariosPanel" onclick="toggleAllScenarios()">Все сценарии →</button>
+          </section>
+          <div class="disclaimer-block"><strong>⚠️ Важно:</strong> приложение помогает фиксировать обстоятельства и готовить проекты документов, но не заменяет официальный текст закона и консультацию специалиста. Перед подачей проверьте действующую редакцию норм и сроки на <a href="https://pravo.gov.ru/" target="_blank" rel="noopener noreferrer">официальном портале правовой информации</a>.</div>
+        </div>
+        <section class="card student-mode-card" id="studentModeCard" data-section-group="learning" hidden aria-labelledby="studentModeTitle">
+          <div class="student-mode-launch">
+            <button type="button" class="student-launch-btn" onclick="toggleStudentMode()" aria-controls="studentModeCard" aria-expanded="false">
+              <span class="ui-icon" data-icon="graduation-cap"></span> Студентам права
+            </button>
+            <span class="student-launch-note">Отдельный учебный раздел — не влияет на юридические сценарии</span>
+          </div>
+          <div class="card-title" id="studentModeTitle"><span class="ui-icon" data-icon="book-open"></span> Учебная мастерская права</div>
+          <p class="student-intro">Разбирай понятия, выстраивай юридическую аргументацию и проверяй нормы по официальным источникам. Материалы учебные и не заменяют проверку действующей редакции закона.</p>
+          <div class="student-toolbar">
+            <label for="studentSubject">Направление</label>
+            <select id="studentSubject" onchange="renderStudentLessons()">
+              <option value="all">Все первые курсы</option>
+              <option value="theory">Теория государства и права</option>
+              <option value="constitutional">Конституционное право</option>
+              <option value="civil">Гражданское право</option>
+            </select>
+            <label for="studentSearch">Найти тему</label>
+            <input id="studentSearch" type="search" placeholder="Например: источник права, собственность…" oninput="renderStudentLessons()">
+            <button type="button" class="student-secondary-btn" onclick="resetStudentFilters()" style="margin-top: 8px;">Сбросить фильтры</button>
+          </div>
+          <div id="studentLessonGrid" class="student-lesson-grid" aria-live="polite"></div>
+          <div class="student-question-box">
+            <h3><span class="ui-icon" data-icon="notebook-pen"></span> Мой учебный вопрос</h3>
+            <p>Запиши вопрос и используй структурированный план разбора. Раздел не выдумывает ответы и номера статей: конкретную норму нужно сверить в официальном источнике.</p>
+            <label for="studentQuestion">Вопрос или тема к семинару</label>
+            <textarea id="studentQuestion" rows="3" placeholder="Например: чем правоспособность отличается от дееспособности?"></textarea>
+            <div class="student-question-actions">
+              <button type="button" class="student-secondary-btn" onclick="buildStudentStudyPlan()">Составить план разбора</button>
+              <button type="button" class="student-secondary-btn" onclick="clearStudentQuestion()">Очистить</button>
+            </div>
+            <div id="studentStudyPlan" class="student-study-plan" hidden aria-live="polite"></div>
+          </div>
+          <div class="student-source-note">
+            <b>Проверка законодательства</b>
+            <p>Официальный интернет-портал правовой информации: <a href="https://pravo.gov.ru/" target="_blank" rel="noopener noreferrer">pravo.gov.ru</a></p>
+            <div style="margin-top:12px;padding:12px;background:#0d1829;border:1px solid #2d3d56;border-radius:8px;">
+              <p><b>Памятка по проверке нормы:</b></p>
+              <ul style="margin:8px 0;padding-left:20px;line-height:1.6;">
+                <li>Проверь точное название нормативного акта</li>
+                <li>Проверь номер и дату принятия акта</li>
+                <li>Открой нужную редакцию на дату, релевантную для ситуации</li>
+                <li>Проверь дату вступления нормы в силу и её действие на рассматриваемую дату</li>
+                <li>Прочитай связанные положения и исключения</li>
+                <li>Убедись, что норма применима к поставленному вопросу</li>
+              </ul>
+            </div>
+            <p style="margin-top:10px;">Одна ссылка на портал автоматически не подтверждает юридический вывод. Не добавляй неподтверждённые номера статей и не представляй учебные определения как дословные цитаты закона.</p>
+          </div>
+
+          <!-- Тренажёр знаний v3.1 -->
+          <div class="student-trainer-section">
+            <h3><span class="ui-icon" data-icon="brain-circuit"></span> Тренажёр знаний</h3>
+            <p class="student-intro">Проверь свои знания по тестам. Раунд — 5 вопросов. Результаты не влияют на XP и не сохраняются.</p>
+            <div id="trainerTopicSelect" class="trainer-topic-select">
+              <label for="trainerTopic">Выбери тему:</label>
+              <select id="trainerTopic" onchange="startTrainer()">
+                <option value="">-- Выбери тему --</option>
+                <option value="theory">Теория государства и права</option>
+                <option value="constitutional">Конституционное право РФ</option>
+                <option value="civil">Гражданское право РФ</option>
+                <option value="mixed">Смешанный тест</option>
+              </select>
+            </div>
+            <div id="trainerGameArea" class="trainer-game-area" hidden>
+              <div class="trainer-progress">Вопрос <span id="trainerCurrentQ">1</span> из 5</div>
+              <div id="trainerQuestion" class="trainer-question"></div>
+              <div id="trainerOptions" class="trainer-options"></div>
+              <div id="trainerFeedback" class="trainer-feedback" hidden></div>
+              <button id="trainerNextBtn" class="student-secondary-btn" onclick="nextTrainerQuestion()" hidden>Следующий вопрос</button>
+            </div>
+            <div id="trainerResult" class="trainer-result" hidden>
+              <h3>Результат раунда</h3>
+              <div id="trainerScore"></div>
+              <div class="trainer-result-actions">
+                <button class="student-secondary-btn" onclick="startTrainer()">Пройти ещё раз</button>
+                <button class="student-secondary-btn" onclick="resetTrainerTopic()">Выбрать тему</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 📌 Инструкция по шрифту -->
+        <div class="notice" data-section-group="home">
+          <b><span class="ui-icon" data-icon="scale"></span> Важно: юридическая проверка.</b> Проект находится в разработке. Правовые подсказки и ссылки в сценариях требуют проверки на актуальность и применимость к вашей ситуации. Сгенерированный текст — проект документа, а не заключение юриста. Перед подачей проверьте факты, адресата, требования и сроки.
+        </div>
+
+        <!-- 🧭 Правовой радар -->
+        <div class="card" id="legalRadarCard" data-section-group="home">
+          <div class="card-title"><span class="ui-icon" data-icon="compass"></span> Правовой радар — что делать сейчас</div>
+          <p style="color:var(--z-muted);margin-top:0">Выберите тип ситуации и получите безопасный первичный маршрут. Это не заменяет индивидуальную юридическую консультацию.</p>
+          <div class="tool-grid">
+            <div class="tool-tile"><h3><span class="ui-icon" data-icon="shield-check"></span> Полиция и мои права</h3><p>Проверка документов, доставление, задержание, досмотр или применение силы.</p><button class="sec" onclick="showLegalRadar('police')">Открыть маршрут</button></div>
+            <div class="tool-tile"><h3><span class="ui-icon" data-icon="briefcase-business"></span> Работа</h3><p>Увольнение, давление, задержка зарплаты, трудовой конфликт.</p><button class="sec" onclick="showLegalRadar('work')">Открыть маршрут</button></div>
+            <div class="tool-tile"><h3><span class="ui-icon" data-icon="house"></span> Жильё и ЖКХ</h3><p>Затопление, качество услуг, начисления, шум.</p><button class="sec" onclick="showLegalRadar('housing')">Открыть маршрут</button></div>
+            <div class="tool-tile"><h3><span class="ui-icon" data-icon="shopping-bag"></span> Покупки и услуги</h3><p>Недостаток товара, плохая услуга, спор с продавцом.</p><button class="sec" onclick="showLegalRadar('consumer')">Открыть маршрут</button></div>
+            <div class="tool-tile"><h3><span class="ui-icon" data-icon="credit-card"></span> Долги и коллекторы</h3><p>Звонки, сообщения, требования и документы по долгу.</p><button class="sec" onclick="showLegalRadar('debt')">Открыть маршрут</button></div>
+            <div class="tool-tile"><h3><span class="ui-icon" data-icon="car-front"></span> ДТП</h3><p>Безопасность на месте, фиксация обстоятельств и документы.</p><button class="sec" onclick="showLegalRadar('dtp')">Открыть маршрут</button></div>
+          </div>
+          <div id="legalRadarResult" class="tool-result" hidden aria-live="polite"></div>
+        </div>
+
+        <!-- <span class="ui-icon" data-icon="briefcase-medical"></span> Юридическая аптечка семьи -->
+        <div class="card" id="familyKitCard" data-section-group="more">
+          <div class="card-title"><span class="ui-icon" data-icon="briefcase-medical"></span> Юридическая аптечка семьи</div>
+          <p style="color:var(--z-muted);margin-top:0">Короткие памятки для телефона. Можно сохранить офлайн или распечатать. Памятки не содержат персональных данных.</p>
+          <div class="pill-row"><span class="pill">Без ФИО и адреса</span><span class="pill">Работает после загрузки офлайн</span><span class="pill">Проверяйте актуальность</span></div>
+          <label for="familyKitSelect">Выберите памятку</label>
+          <select id="familyKitSelect" style="width:100%;padding:11px;margin:8px 0 12px">
+            <option value="police">Общение с полицией</option><option value="detention">Доставление или задержание</option><option value="force">Применение силы / травма</option><option value="dtp">ДТП</option><option value="work">Трудовой конфликт</option><option value="housing">Авария в жилье</option><option value="consumer">Спор с продавцом</option><option value="debt">Звонки по долгу</option>
+          </select>
+          <div class="pill-row no-print"><button onclick="renderFamilyKit()">Показать памятку</button><button class="sec" onclick="downloadFamilyKit()">Скачать TXT</button><button class="sec" onclick="printFamilyKit()">Печать / PDF</button></div>
+          <div id="familyKitResult" class="tool-result" aria-live="polite"></div>
+        </div>
+
+        <!-- 🔐 Приватность и резервная копия -->
+        <div class="card" id="privacyCard" data-section-group="more">
+          <div class="card-title"><span class="ui-icon" data-icon="lock-keyhole"></span> Приватность и данные на устройстве</div>
+          <p style="color:var(--z-muted);margin-top:0">В этой версии сведения хранятся в локальном хранилище браузера на этом устройстве. Это не зашифрованный архив: человек с доступом к устройству или профилю браузера может получить к ним доступ.</p>
+          <div class="pill-row no-print"><button class="sec" onclick="exportAllLocalData()"><span class="ui-icon" data-icon="archive"></span> Экспортировать резервную копию</button><button class="sec" onclick="document.getElementById('backupImportFile').click()"><span class="ui-icon" data-icon="file-up"></span> Восстановить копию</button><input id="backupImportFile" type="file" accept="application/json,.json" hidden onchange="importAllLocalData(event)"><button class="warn" onclick="deleteAllLocalData()">Удалить все локальные данные</button></div>
+          <div class="legal-meta">Перед передачей устройства другому человеку экспортируйте нужные материалы, затем удалите локальные данные. Не храните здесь лишние сведения о свидетелях и третьих лицах.</div>
+        </div>
+
+        <!-- 🩺 Health Score -->
+        <div id="scoreWrap" data-section-group="home">
+          <b><span class="ui-icon" data-icon="shield-check"></span> Полнота фиксации: <span id="scoreNum">0</span>/100</b>
+          <div id="scoreBarBg"><div id="scoreBar"></div></div>
+          <div id="scoreLabel">Индикатор помогает проверить комплектность записей. Это не оценка силы доказательств и не прогноз исхода дела.</div>
+        </div>
+
+        <!-- Выбор сценария -->
+        <div class="card all-scenarios-card" id="allScenariosPanel" data-section-group="home" hidden>
+          <div class="card-title"><span class="ui-icon" data-icon="list-check"></span> Все доступные сценарии</div>
+          <div class="scenario-grid" id="scenarioGrid"></div>
+        </div>
+
+        <!-- 🧱 Конструктор иска -->
+        <div class="card" id="constructorCard" data-section-group="home" style="display: none;">
+          <div class="card-title">🧱 Конструктор документа (соберите нужное):</div>
+          <label class="blk"><input type="checkbox" class="blkChk" value="header" checked> 📋 Шапка</label>
+          <label class="blk"><input type="checkbox" class="blkChk" value="user_data" checked> 👤 От кого</label>
+          <label class="blk"><input type="checkbox" class="blkChk" value="narrative" checked> 📖 Описание</label>
+          <label class="blk"><input type="checkbox" class="blkChk" value="evidence_log" checked> 🧾 Доказательства</label>
+          <label class="blk"><input type="checkbox" class="blkChk" value="law_reference" checked> ⚖️ Основание</label>
+          <label class="blk"><input type="checkbox" class="blkChk" value="demand" checked> 🎯 Требования</label>
+          <label class="blk"><input type="checkbox" class="blkChk" value="attachments" checked> 📎 Приложения</label>
+        </div>
+
+        <!-- Профиль -->
+        <div class="card" id="profileCard" data-section-group="more">
+          <div class="card-title"><span class="ui-icon" data-icon="user-round"></span> Ваш профиль:</div>
+          <input id="fio" placeholder="ФИО полностью">
+          <input id="address" placeholder="Адрес проживания">
+          <input id="phone" placeholder="Телефон">
+          <button class="sec" onclick="saveProfile()" style="margin-top: 8px;"><span class="ui-icon" data-icon="save"></span> Сохранить профиль</button>
+        </div>
+
+        <!-- Диалоговый навигатор -->
+        <div class="card" id="navigatorCard" data-section-group="home" style="display: none;">
+          <div class="card-title">🧭 Юридический навигатор:</div>
+          <div id="dialogContainer"></div>
+        </div>
+
+        <!-- Фиксация доказательств -->
+        <div class="card" id="evidenceCard" data-section-group="home" style="display: none;">
+          <div class="card-title"><span class="ui-icon" data-icon="folder-check"></span> Зафиксируйте доказательства:</div>
+          <div id="actionButtons"></div>
+          <div class="notice" style="margin-top:10px;">📦 Фото и документы сохраняются в хранилище этого браузера. Это не облачный архив: регулярно скачивайте резервную копию и храните её безопасно. Не удаляйте данные браузера, пока не сохранили нужные материалы.</div>
+          
+          <div style="margin-top: 12px;">
+            <input id="w_name" placeholder="Имя свидетеля">
+            <input id="w_phone" placeholder="Телефон свидетеля" style="margin-top: 6px;">
+            <button class="sec" onclick="addWitness()" style="margin-top: 8px;">👤 Добавить свидетеля</button>
+          </div>
+
+          <ul class="evidence-list" id="evidenceList"></ul>
+
+          <div id="validationWarning" class="validation-warning" style="display: none;"></div>
+        </div>
+
+        <!-- 📚 История документов -->
+        <div class="card" id="historyCard" data-section-group="cases" style="display: none;">
+          <div class="card-title"><span class="ui-icon" data-icon="history"></span> История документов (последние 5):</div>
+          <ul id="historyList"></ul>
+        </div>
+
+        <!-- Превью документа -->
+        <div class="card" id="previewCard" data-section-group="documents" style="display: none;">
+          <div class="card-title"><span class="ui-icon" data-icon="file-text"></span> Превью документа:</div>
+          <div class="document-preview" id="docPreview"></div>
+        </div>
+
+        <!-- Экспорт -->
+        <div class="footer" id="footer" data-section-group="documents">
+          <div>
+            <button onclick="generateDocument()" class="success"><span class="ui-icon" data-icon="file-check"></span> Сгенерировать документ</button>
+            <button onclick="copyToClipboard()" class="sec"><span class="ui-icon" data-icon="copy"></span> Скопировать</button>
+            <button onclick="exportPDF()" class="sec"><span class="ui-icon" data-icon="file-down"></span> PDF</button>
+            <button onclick="exportTXT()" class="sec"><span class="ui-icon" data-icon="file-text"></span> TXT</button>
+            <button onclick="exportJSON()" class="sec"><span class="ui-icon" data-icon="database"></span> JSON</button>
+          </div>
+          <div>
+            <button onclick="resetAll()" class="warn"><span class="ui-icon" data-icon="trash-2"></span> Сбросить</button>
+            <a href="../life-hub-v2.0/index.html" style="text-decoration: none;">
+              <button class="sec"><span class="ui-icon" data-icon="house"></span> Моя Жизнь</button>
+            </a>
+          </div>
+        </div>
+      </div>
+
+<script>
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').then(() => {
+        console.log('✅ PWA Service Worker зарегистрирован');
+          }).catch(err => console.log('❌ PWA ошибка:', err));
+      }
+      // ==========================================
+      // 🧠 1. БАЗА ЗНАНИЙ (Законы)
+      // ==========================================
+      const LAWS = {
+        "TK_394": "Статья 394 ТК РФ. Последствия незаконного увольнения или перевода на другую работу",
+        "TK_236": "Статья 236 ТК РФ. Материальная ответственность работодателя за задержку выплаты",
+        "TK_80": "Статья 80 ТК РФ. Расторжение трудового договора по инициативе работника",
+        "TK_178": "Статья 178 ТК РФ. Выходные пособия",
+        "GK_179": "Статья 179 ГК РФ. Недействительность сделки, совершенной под влиянием обмана, насилия, угрозы",
+        "GK_15": "Статья 15 ГК РФ. Возмещение убытков",
+        "GK_1064": "Статья 1064 ГК РФ. Общие основания ответственности за причинение вреда",
+        "GK_1079": "Статья 1079 ГК РФ. Ответственность за вред, причиненный деятельностью, создающей повышенную опасность",
+        "ZPP_29": "Статья 29 Закона РФ «О защите прав потребителей». Права потребителя при обнаружении недостатков выполненной работы (оказанной услуги)",
+        "ZPP_18": "Статья 18 ЗоЗПП. Права потребителя при обнаружении в товаре недостатков",
+        "KOAP_12.1": "Статья 12.1 КоАП РФ. Управление ТС, не зарегистрированным в установленном порядке",
+        "KOAP_12.8": "Статья 12.8 КоАП РФ. Управление ТС в состоянии опьянения"
+      };
+
+      // ==========================================
+      // 🧠 2. СЦЕНАРИИ (с блоками для конструктора)
+      // ==========================================
+      const SCENARIOS = {
+        "unlawful_dismissal": {
+          id: "unlawful_dismissal",
+          title: "Незаконное увольнение",
+          icon: "briefcase-business",
+          xp: 50,
+          required: ["note"],
+          steps: [
+            {
+              id: "start",
+              question: "Как вас уволили?",
+              options: [
+                { label: "Заставили написать по собственному", next: "forced_resignation", tag: "Давление" },
+                { label: "Уволили по статье", next: "article_dismissal", tag: "Статья" },
+                { label: "Сокращение штата", next: "layoff", tag: "Сокращение" },
+                { label: "По соглашению сторон", next: "mutual_agreement", tag: "Соглашение" }
+              ]
+            },
+            {
+              id: "forced_resignation",
+              question: "Было ли психологическое давление?",
+              options: [
+                { label: "Да, угрожали", next: "threats", tag: "Угрозы" },
+                { label: "Да, шантажировали", next: "blackmail", tag: "Шантаж" },
+                { label: "Просто настаивали", next: "pressure", tag: "Давление" }
+              ]
+            },
+            {
+              id: "article_dismissal",
+              question: "По какой статье?",
+              options: [
+                { label: "Прогул (пп. а п. 6 ч. 1 ст. 81)", next: "walkout", tag: "Прогул" },
+                { label: "Неисполнение обязанностей (п. 5 ч. 1 ст. 81)", next: "nonperformance", tag: "Неисполнение" },
+                { label: "Утрата доверия (п. 7 ч. 1 ст. 81)", next: "trust_loss", tag: "Доверие" }
+              ]
+            },
+            {
+              id: "layoff",
+              question: "Предупредили за 2 месяца?",
+              options: [
+                { label: "Да, предупредили", next: "warned", tag: "Предупреждение" },
+                { label: "Нет, не предупредили", next: "not_warned", tag: "Нарушение" },
+                { label: "Предложили другую должность", next: "offered_position", tag: "Предложение" }
+              ]
+            }
+          ],
+          blocks: [
+            { type: "header", text: "Директору {company}\nОт: {fio}\nАдрес: {address}\nТелефон: {phone}" },
+            { type: "user_data" },
+            { type: "narrative", template: "Мною, {fio}, был(а) уволен(а) с должности {position}.\n\nСчитаю увольнение незаконным по следующим основаниям:\n\n{context_details}" },
+            { type: "evidence_log" },
+            { type: "law_reference", article_ids: ["TK_394", "TK_236", "GK_15"] },
+            { type: "demand", text: "1. Восстановить меня на работе в прежней должности.\n2. Оплатить время вынужденного прогула.\n3. Компенсировать моральный вред в размере 100 000 рублей." },
+            { type: "attachments" }
+          ]
+        },
+        "dtp": {
+          id: "dtp",
+          title: "ДТП",
+          icon: "car-front",
+          xp: 60,
+          required: ["note"],
+          steps: [
+            {
+              id: "start",
+              question: "Какой был ущерб?",
+              options: [
+                { label: "Только материальный", next: "material_only", tag: "Материальный" },
+                { label: "Есть пострадавшие", next: "injuries", tag: "Пострадавшие" },
+                { label: "Смертельный случай", next: "death", tag: "Смерть" }
+              ]
+            },
+            {
+              id: "material_only",
+              question: "Кто виноват?",
+              options: [
+                { label: "Я не виноват", next: "not_guilty", tag: "Не виновен" },
+                { label: "Обоюдная вина", next: "mutual_guilt", tag: "Обоюдка" },
+                { label: "Я виноват", next: "guilty", tag: "Виновен" }
+              ]
+            },
+            {
+              id: "injuries",
+              question: "Тяжесть вреда?",
+              options: [
+                { label: "Легкий вред", next: "light_injury", tag: "Легкий" },
+                { label: "Средний вред", next: "medium_injury", tag: "Средний" },
+                { label: "Тяжкий вред", next: "severe_injury", tag: "Тяжкий" }
+              ]
+            }
+          ],
+          blocks: [
+            { type: "header", text: "Начальнику ОГИБДД {company}\nОт: {fio}\nАдрес: {address}\nТелефон: {phone}" },
+            { type: "user_data" },
+            { type: "narrative", template: "Мною, {fio}, были зафиксированы следующие обстоятельства ДТП:\n\n{context_details}" },
+            { type: "evidence_log" },
+            { type: "law_reference", article_ids: ["GK_1064", "GK_1079"] },
+            { type: "demand", text: "1. Приобщить к делу представленные доказательства.\n2. Привлечь виновное лицо к ответственности.\n3. Выдать справку о ДТП для страховой компании." },
+            { type: "attachments" }
+          ]
+        },
+        "housing": {
+          id: "housing",
+          title: "Жилье и ЖКХ",
+          icon: "house",
+          xp: 45,
+          required: ["note OR photo"],
+          steps: [
+            {
+              id: "start",
+              question: "Какая проблема?",
+              options: [
+                { label: "Затопили соседи", next: "flood", tag: "Затопление" },
+                { label: "Плохое качество услуг", next: "bad_service", tag: "Услуги" },
+                { label: "Незаконные платежи", next: "illegal_fees", tag: "Платежи" },
+                { label: "Шумные соседи", next: "noise", tag: "Шум" }
+              ]
+            }
+          ],
+          blocks: [
+            { type: "header", text: "Директору УК {company}\nОт: {fio}\nАдрес: {address}" },
+            { type: "user_data" },
+            { type: "narrative", template: "Я являюсь собственником квартиры по адресу: {address}.\n\n{context_details}" },
+            { type: "evidence_log" },
+            { type: "law_reference", article_ids: ["ZPP_29", "GK_15"] },
+            { type: "demand", text: "1. Устранить нарушения в течение 7 дней.\n2. Произвести перерасчет платежей.\n3. Компенсировать моральный вред." },
+            { type: "attachments" }
+          ]
+        },
+        "consumer": {
+          id: "consumer",
+          title: "Защита прав потребителей",
+          icon: "shopping-bag",
+          xp: 40,
+          required: ["photo OR note"],
+          steps: [
+            {
+              id: "start",
+              question: "Что купили?",
+              options: [
+                { label: "Товар с браком", next: "defect_goods", tag: "Брак" },
+                { label: "Некачественная услуга", next: "bad_service", tag: "Услуга" },
+                { label: "Обман при продаже", next: "fraud", tag: "Обман" }
+              ]
+            }
+          ],
+          blocks: [
+            { type: "header", text: "Директору {company}\nОт: {fio}\nАдрес: {address}\nТелефон: {phone}" },
+            { type: "user_data" },
+            { type: "narrative", template: "Я приобрел(а) в вашем магазине товар/услугу.\n\n{context_details}" },
+            { type: "evidence_log" },
+            { type: "law_reference", article_ids: ["ZPP_18", "ZPP_29", "GK_15"] },
+            { type: "demand", text: "1. Заменить товар на качественный ИЛИ\n2. Вернуть денежные средства в полном объеме.\n3. Компенсировать моральный вред." },
+            { type: "attachments" }
+          ]
+        }
+      };
+
+      // ==========================================
+      // 🧠 3. STATE MACHINE (Диалоговый движок)
+      // ==========================================
+      class StateMachine {
+        constructor(scenarioId) {
+          this.scenario = SCENARIOS[scenarioId];
+          this.currentState = this.scenario?.steps?.[0]?.id || 'start';
+          this.context = { tags: [], answers: {}, answerIds: {} };
+          // Снимки состояния нужны для безопасного возврата на предыдущий вопрос.
+          this.history = [];
+        }
+
+        getCurrentStep() {
+          if (!this.scenario || !Array.isArray(this.scenario.steps)) return null;
+          let index = this.scenario.steps.findIndex(step => step.id === this.currentState);
+          while (index >= 0 && index < this.scenario.steps.length) {
+            const step = this.scenario.steps[index];
+            const conditions = step.conditions;
+            const visible = !conditions || Object.entries(conditions).every(([questionId, allowed]) =>
+              Array.isArray(allowed) && allowed.includes(this.context.answerIds[questionId])
+            );
+            if (visible) {
+              this.currentState = step.id;
+              return step;
+            }
+            index += 1;
+            this.currentState = this.scenario.steps[index]?.id || null;
+          }
+          this.currentState = null;
+          return null;
+        }
+
+        selectOption(optionIndex) {
+          const step = this.getCurrentStep();
+          if (!step || !Array.isArray(step.options)) return null;
+          const option = step.options[optionIndex];
+          if (!option) return step;
+          this.history.push({
+            currentState: this.currentState,
+            context: JSON.parse(JSON.stringify(this.context))
+          });
+          this.context.answers[step.id] = option.label;
+          this.context.answerIds[step.id] = option.value || option.id || null;
+          if (option.tag) this.context.tags.push(option.tag);
+          this.currentState = option.next || null;
+          return this.getCurrentStep();
+        }
+
+        goBack() {
+          if (!this.history.length) return false;
+          const previous = this.history.pop();
+          this.currentState = previous.currentState;
+          this.context = previous.context;
+          return true;
+        }
+
+        isFinished() {
+          return !this.getCurrentStep();
+        }
+
+        getContext() {
+          return this.context;
+        }
+      }
+
+      // Экранирование пользовательских данных перед выводом в HTML.
+      function escapeHTML(value) {
+        return String(value).replace(/[&<>"']/g, char => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[char]));
+      }
+
+      // ==========================================
+      // 🧠 4. EVIDENCE LOGGER (Умная фиксация)
+      // ==========================================
+      // Хранилище оригиналов файлов. Blob сохраняется отдельно от метаданных localStorage.
+      const EvidenceFiles = {
+        dbName: 'ya-v-nature-lawyer-files',
+        storeName: 'originals',
+        open() {
+          return new Promise((resolve, reject) => {
+            if (!('indexedDB' in window)) return reject(new Error('IndexedDB не поддерживается'));
+            const req = indexedDB.open(this.dbName, 1);
+            req.onupgradeneeded = () => {
+              const db = req.result;
+              if (!db.objectStoreNames.contains(this.storeName)) db.createObjectStore(this.storeName, { keyPath: 'id' });
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error || new Error('Не удалось открыть хранилище файлов'));
+          });
+        },
+        async put(id, file) {
+          const db = await this.open();
+          try {
+            await new Promise((resolve, reject) => {
+              const tx = db.transaction(this.storeName, 'readwrite');
+              tx.objectStore(this.storeName).put({ id, blob: file, name: file.name, type: file.type, size: file.size, savedAt: new Date().toISOString() });
+              tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error || new Error('Сохранение отменено'));
+            });
+          } finally { db.close(); }
+        },
+        async list() {
+          const db = await this.open();
+          try { return await new Promise((resolve, reject) => { const req = db.transaction(this.storeName, 'readonly').objectStore(this.storeName).getAll(); req.onsuccess = () => resolve(req.result || []); req.onerror = () => reject(req.error); }); }
+          finally { db.close(); }
+        },
+        async get(id) {
+          const db = await this.open();
+          try { return await new Promise((resolve, reject) => { const req = db.transaction(this.storeName, 'readonly').objectStore(this.storeName).get(id); req.onsuccess = () => resolve(req.result || null); req.onerror = () => reject(req.error); }); }
+          finally { db.close(); }
+        },
+        async putRecord(record) {
+          const db = await this.open();
+          try { await new Promise((resolve, reject) => { const tx = db.transaction(this.storeName, 'readwrite'); tx.objectStore(this.storeName).put(record); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error || new Error('Восстановление файла отменено')); }); }
+          finally { db.close(); }
+        },
+        async remove(id) {
+          const db = await this.open();
+          try { await new Promise((resolve, reject) => { const tx = db.transaction(this.storeName, 'readwrite'); tx.objectStore(this.storeName).delete(id); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); }); }
+          finally { db.close(); }
+        },
+        async clear() {
+          try { const db = await this.open(); try { await new Promise((resolve, reject) => { const tx = db.transaction(this.storeName, 'readwrite'); tx.objectStore(this.storeName).clear(); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); }); } finally { db.close(); } }
+          catch (e) { console.warn('Хранилище файлов недоступно:', e); }
+        }
+      };
+
+      const EvidenceLogger = {
+        add: async (type, payload, context = {}) => {
+          const evs = await EvidenceLogger.list();
+          evs.push({
+            type,
+            payload,
+            context,
+            scenarioId: currentScenario ? currentScenario.id : null,
+            ts: new Date().toISOString(),
+            id: Date.now()
+          });
+          localStorage.setItem('lawyer_evidence', JSON.stringify(evs));
+          renderEvidence();
+        },
+
+        list: async () => {
+          return JSON.parse(localStorage.getItem('lawyer_evidence') || '[]');
+        },
+
+        delete: async (id) => {
+          let evs = await EvidenceLogger.list();
+          const removed = evs.find(e => e.id === id);
+          evs = evs.filter(e => e.id !== id);
+          if (removed && removed.payload && removed.payload.fileId) {
+            try { await EvidenceFiles.remove(removed.payload.fileId); } catch (err) { console.warn('Не удалось удалить оригинал файла:', err); }
+          }
+          localStorage.setItem('lawyer_evidence', JSON.stringify(evs));
+          renderEvidence();
+        },
+
+        clear: async () => {
+          localStorage.setItem('lawyer_evidence', '[]');
+          renderEvidence();
+        },
+
+        validate: (scenarioId) => {
+          const scenario = SCENARIOS[scenarioId];
+          const allEvs = JSON.parse(localStorage.getItem('lawyer_evidence') || '[]');
+          const evs = allEvs.filter(e => e.scenarioId === scenarioId);
+          const warnings = [];
+
+          scenario.required.forEach(req => {
+            const conditions = req.split(' OR ');
+            const hasEvidence = conditions.some(cond => {
+              if (cond === 'geo') return evs.some(e => e.type === 'geo');
+              if (cond === 'note') return evs.some(e => e.type === 'note');
+              if (cond === 'witness') return evs.some(e => e.type === 'witness');
+              if (cond === 'photo') return evs.some(e => e.type === 'photo');
+              return false;
+            });
+
+            if (!hasEvidence) {
+              warnings.push(`Рекомендуется зафиксировать: ${req.replace(' OR ', ' или ')}. Это подсказка приложения, а не установленное законом требование.`);
+            }
+          });
+
+          return warnings;
+        }
+      };
+
+      // ==========================================
+      // 🩺 5. HEALTH SCORE
+      // ==========================================
+      function calcScore(evs) {
+        if (!evs.length) return 0;
+        let s = Math.min(evs.length, 5) * 18;
+        if (evs.some(e => e.type === "geo")) s += 12;
+        if (evs.some(e => e.type === "witness")) s += 10;
+        if (evs.some(e => e.type === "photo")) s += 10;
+        return Math.min(s, 100);
+      }
+
+      function renderScore(evs) {
+        const s = calcScore(evs);
+        const scoreNum = document.getElementById('scoreNum');
+        const bar = document.getElementById('scoreBar');
+        const label = document.getElementById('scoreLabel');
+        if (!scoreNum || !bar || !label) return;
+
+        scoreNum.textContent = s;
+        bar.style.width = s + "%";
+        bar.style.background = s < 40 ? "#fc8181" : s < 70 ? "#f6ad55" : "#48bb78";
+        label.textContent =
+          s === 0 ? "Пока нет записей. Добавьте факты, документы или сведения о свидетелях, если они доступны." :
+          s < 40  ? "Записей пока немного. Укажите обстоятельства, дату и участников события." :
+          s < 70  ? "Часть обстоятельств зафиксирована. Проверьте, чего ещё не хватает именно в вашей ситуации." :
+                    "Записей стало больше. Индикатор не оценивает допустимость доказательств и не прогнозирует исход дела.";
+      }
+
+      // ==========================================
+      // 🧠 6. DOCUMENT ASSEMBLER (с фильтром блоков)
+      // ==========================================
+      const DocumentAssembler = {
+        assemble: (scenarioId, profile, evidence, context, selectedTypes) => {
+          const scenario = SCENARIOS[scenarioId];
+          if (!scenario) return "Ошибка: Сценарий не найден.";
+
+          const blocks = typeof scenario.resolveBlocks === 'function'
+            ? scenario.resolveBlocks(context || {})
+            : scenario.blocks;
+          const activeTypes = selectedTypes && selectedTypes.length
+            ? selectedTypes
+            : blocks.map(b => b.type);
+
+          let contextDetails = '';
+          if (context.answers) {
+            Object.entries(context.answers).forEach(([stepId, answer]) => {
+              contextDetails += `• ${answer}\n`;
+            });
+          }
+
+          let evidenceSection = 'Зафиксированные доказательства:\n';
+          if (!evidence.length) {
+            evidenceSection += 'Доказательства не зафиксированы.\n';
+          } else {
+            evidence.forEach(e => {
+              const date = new Date(e.ts).toLocaleString('ru-RU');
+              if (e.type === 'geo') evidenceSection += `📍 ${date}: GPS-координаты ${e.payload.coords}${e.payload.accuracyMeters ? ` (точность устройства около ${e.payload.accuracyMeters} м)` : ''}. Координаты сами по себе не подтверждают обстоятельства события.\n`;
+              if (e.type === 'note') evidenceSection += `📝 ${date}: ${e.payload.text}\n`;
+              if (e.type === 'witness') evidenceSection += `👤 ${date}: Свидетель ${e.payload.name} (${e.payload.phone})\n`;
+              if (e.type === 'photo') evidenceSection += `📎 ${date}: Фото/файл ${e.payload.filename}\n`;
+            });
+          }
+
+          const files = evidence.filter(e => e.type === "photo");
+          let attachments = '';
+          if (files.length) {
+            attachments = files.map((e, i) => `${i + 1}. ${e.payload.filename}`).join('\n');
+          }
+
+          let doc = '';
+          for (const block of blocks) {
+            if (!activeTypes.includes(block.type)) continue;
+
+            if (block.type === "header") {
+              const h = block.text
+                .replace('{company}', profile.company || '__________')
+                .replace('{fio}', profile.fio || '__________')
+                .replace('{address}', profile.address || '__________')
+                .replace('{phone}', profile.phone || '__________');
+              doc += h + '\n\n';
+            }
+            if (block.type === "user_data") {
+              doc += `От: ${profile.fio || "ФИО не указано"}\nАдрес: ${profile.address || "Адрес не указан"}\nТелефон: ${profile.phone || "—"}\n\n`;
+            }
+            if (block.type === "narrative") {
+              // 🔥 ВОТ ЗДЕСЬ ВСЕ ЗАМЕНЫ
+              doc += block.template
+                .replace(/{fio}/g, profile.fio || 'ФИО')
+                .replace(/{address}/g, profile.address || '__________')
+                .replace(/{position}/g, profile.position || '__________')
+                .replace(/{context_details}/g, contextDetails) + '\n\n';
+            }
+            if (block.type === "evidence_log") {
+              doc += evidenceSection + '\n';
+            }
+            if (block.type === "law_reference") {
+              const laws = (block.article_ids || [block.article_id])
+                .filter(Boolean)
+                .map(id => LAWS[id])
+                .filter(Boolean)
+                .join(';\n');
+              if (laws) doc += `На основании: ${laws}\n\n`;
+            }
+            if (block.type === "demand") {
+              doc += `ТРЕБОВАНИЕ (проверьте и сформулируйте перед подачей):\n${block.text}\n\n`;
+            }
+            if (block.type === "recommendation") {
+              doc += `ПРЕДВАРИТЕЛЬНЫЙ МАРШРУТ ДЕЙСТВИЙ — ТРЕБУЕТ ПРОВЕРКИ\n${block.text}\n\n`;
+            }
+            if (block.type === "attachments") {
+              doc += `Приложения:\n${attachments || '—'}\n\n`;
+            }
+          }
+
+          doc += `ПРИМЕЧАНИЕ: это проект текста, сформированный на основе введённых данных. Проверьте факты, правовые основания, адресата и сроки перед использованием.\n\nДата: ${new Date().toLocaleDateString('ru-RU')}                    Подпись: ____________`;
+          return doc;
+        }
+      };
+
+      // ==========================================
+      // 📚 7. ИСТОРИЯ ДОКУМЕНТОВ
+      // ==========================================
+      function saveToHistory(scenarioId, text) {
+        let history = JSON.parse(localStorage.getItem('lawyer_history') || '[]');
+        history.unshift({ scenarioId, text, date: new Date().toISOString() });
+        history = history.slice(0, 5);
+        localStorage.setItem('lawyer_history', JSON.stringify(history));
+        renderHistory();
+      }
+
+      function renderHistory() {
+        const history = JSON.parse(localStorage.getItem('lawyer_history') || '[]');
+        const card = document.getElementById('historyCard');
+        const list = document.getElementById('historyList');
+        if (!card || !list) return;
+
+        if (history.length === 0) {
+          card.style.display = 'none';
+          return;
+        }
+        card.style.display = 'block';
+        list.innerHTML = history.map((h, i) => {
+          const sc = SCENARIOS[h.scenarioId];
+          const title = sc ? sc.title : h.scenarioId;
+          const dateStr = new Date(h.date).toLocaleString('ru-RU', {
+            day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+          });
+          return `<li onclick="loadFromHistory(${i})">📄 ${title} — ${dateStr}</li>`;
+        }).join('');
+      }
+
+      function loadFromHistory(index) {
+        const history = JSON.parse(localStorage.getItem('lawyer_history') || '[]');
+        if (history[index]) {
+          const docEl = document.getElementById('docPreview');
+          docEl.textContent = history[index].text;
+          docEl.scrollIntoView({ behavior: 'smooth' });
+          showNotification('📄 Документ загружен из истории', 'info');
+        }
+      }
+
+      // ==========================================
+      // 🧠 8. UI ЛОГИКА (State)
+      // ==========================================
+      let currentScenario = null;
+      let stateMachine = null;
+
+      // ==========================================
+      // 🧭 LEGAL RADAR — осторожные первичные маршруты
+      // Материалы являются ориентиром, не индивидуальным заключением.
+      // ==========================================
+      const LEGAL_RADAR = {
+        police: {title:'Полиция и мои права', urgent:'Если есть непосредственная угроза жизни или здоровью — сначала переместитесь в безопасное место, если это возможно, и обратитесь за экстренной помощью.', steps:[
+          'Спокойно уточните, кто обращается к вам, должность и причину обращения, если это безопасно и уместно.',
+          'Уточните, какое именно действие происходит: проверка документов, доставление, задержание, досмотр, обыск, опрос или допрос. Эти процедуры не взаимозаменяемы.',
+          'Если ваш статус или основание ограничения свободы неясны, прямо попросите разъяснить их и сообщить, какие документы оформляются.',
+          'При риске уголовного преследования попросите обеспечить возможность связаться с адвокатом. Не полагайтесь на универсальные советы из интернета о подписании документов: прочитайте их, заявите конкретные замечания и попросите внести их в протокол.',
+          'Фиксируйте время, место, имена/жетоны при наличии, свидетелей и названия документов только если это безопасно и законно. Не сопротивляйтесь физически и не мешайте действиям силой.',
+          'После события сохраните копии документов и составьте хронологию по памяти. При травмах обратитесь за медицинской помощью и сохраните медицинские документы.'
+        ], caution:'Правила зависят от статуса человека и конкретного процессуального действия. Эта памятка не определяет законность действий сотрудника без фактов и документов.'},
+        work:{title:'Трудовой конфликт',steps:['Сохраните трудовой договор, приказы, расчётные листки, графики и переписку в исходном виде.','Запишите хронологию: даты, участников, точные формулировки и свидетелей. Отделяйте собственные наблюдения от предположений.','Попросите копии относящихся к вам документов предусмотренным законом способом; сохраняйте подтверждение обращения.','Не подписывайте документы, содержание которых не поняли. Если подписываете получение, при необходимости отдельно зафиксируйте несогласие и получите копию.','Проверьте применимый срок обращения и надлежащий орган по действующей редакции закона до подачи жалобы или иска.'],caution:'Сроки и способы защиты зависят от вида спора, даты события и оформления увольнения/выплат.'},
+        housing:{title:'Жильё и ЖКХ',steps:['Если есть вода, дым, запах газа или другая опасность — сначала безопасность людей и аварийная служба; не рискуйте ради фото.','Зафиксируйте дату, время, место и видимые последствия; снимайте общий план и детали, не редактируя исходники.','Сообщите управляющей организации/аварийной службе и сохраните номер заявки, время звонка и ответ.','Попросите оформить акт осмотра; прочитайте его и укажите конкретные замечания до подписания, если они есть.','Сохраняйте чеки, счета, переписку и документы о расходах. Проверьте применимый порядок и сроки требования.'],caution:'Порядок зависит от причины ущерба, собственника/нанимателя и вида коммунальной услуги.'},
+        consumer:{title:'Спор с продавцом или исполнителем',steps:['Сохраните чек, заказ, договор, гарантийные документы, переписку и подтверждение оплаты. Отсутствие чека само по себе не всегда означает отсутствие права на обращение.','Опишите недостаток или нарушение конкретно: что обещано, что получено, когда обнаружено.','Сделайте фото/видео состояния товара или результата услуги, не изменяя оригиналы.','Направляйте требование продавцу/исполнителю с подтверждением отправки и сохраняйте ответ.','Перед указанием требования и срока проверьте категорию товара/услуги, характер недостатка и актуальную редакцию закона.'],caution:'Правила возврата различаются для качественного и некачественного товара, дистанционной покупки, технически сложных товаров и услуг.'},
+        debt:{title:'Долги и коллекторы',steps:['Не сообщайте коды из SMS, пароли, данные банковской карты и не устанавливайте приложения по просьбе звонящего.','Попросите назвать организацию, ФИО/должность и основание обращения; не подтверждайте лишние персональные сведения до проверки собеседника.','Сохраните сообщения, даты и время звонков, номера, письма и конверты. Не публикуйте их с личными данными в соцсетях.','Проверьте документы о долге и полномочия взыскателя по независимым официальным каналам. Не переводите деньги по непроверенным реквизитам.','Для угроз, разглашения данных или предполагаемого нарушения выберите компетентный орган после уточнения фактов и правового основания.'],caution:'Порядок взаимодействия зависит от вида долга, статуса взыскателя и наличия судебного акта/исполнительного производства.'},
+        dtp:{title:'ДТП',urgent:'Если есть пострадавшие или непосредственная опасность — вызовите экстренные службы и следуйте указаниям диспетчера. Не подвергайте себя опасности ради фиксации.',steps:['Обеспечьте безопасность людей и места происшествия в пределах своих возможностей и правил дорожного движения.','Вызовите соответствующие службы, если это требуется обстоятельствами; сообщите о пострадавших.','Если безопасно, зафиксируйте положение транспортных средств, дорожные знаки, следы, повреждения, время и контакты свидетелей. Не перемещайте объекты вопреки требованиям закона или указаниям служб.','Сохраните документы, фото/видео в оригинальном виде и данные участников. Не делайте выводов о виновности по одной фотографии.','Перед подписанием схемы/объяснений прочитайте их и попросите внести конкретные замечания; получите копии доступных документов.'],caution:'Порядок оформления зависит от наличия пострадавших, обстоятельств и возможности оформить происшествие без полиции.'}
+      };
+      function showLegalRadar(key) {
+        const item = LEGAL_RADAR[key]; const el = document.getElementById('legalRadarResult');
+        if (!item || !el) return;
+        el.hidden = false;
+        el.innerHTML = `<h3>${escapeHTML(item.title)}</h3>${item.urgent ? `<div class="danger-note"><b>Сначала безопасность.</b> ${escapeHTML(item.urgent)}</div>` : ''}<ol>${item.steps.map(x=>`<li>${escapeHTML(x)}</li>`).join('')}</ol><div class="danger-note"><b>Ограничение:</b> ${escapeHTML(item.caution || 'Порядок зависит от обстоятельств. Проверяйте применимое законодательство.')}</div><p class="legal-meta">Правовые источники для проверки: <a href="https://pravo.gov.ru/" target="_blank" rel="noopener noreferrer">Официальный интернет-портал правовой информации</a>. Перед применением нужно проверить действующую редакцию норм и обстоятельства конкретного случая.</p>`;
+        el.scrollIntoView({behavior:'smooth',block:'nearest'});
+      }
+      const FAMILY_KIT = {
+        police:{title:'Общение с полицией',body:LEGAL_RADAR.police}, detention:{title:'Доставление или задержание',body:{urgent:'Если можете безопасно сделать это, сообщите близкому, где вы находитесь. При уголовно-процессуальном статусе подозреваемого/обвиняемого просите обеспечить защиту адвоката.',steps:['Уточните и запомните время фактического ограничения свободы и основание, которое вам сообщают.','Уточните свой процессуальный статус и какое действие проводится.','Попросите разъяснить права и возможность связаться с защитником; не обсуждайте обстоятельства дела без понимания своего статуса и прав.','Читайте документы; конкретные несогласия и замечания просите внести в протокол. Не подписывайте пустые или незаполненные листы.','Запомните свидетелей, место, время, самочувствие; о травмах заявите и попросите медицинскую помощь.'],caution:'Сроки и права отличаются в административном и уголовном процессе. Нужна проверка статуса и документов.'}}, force:{title:'Применение силы или травма',body:{urgent:'Первая задача — уйти от непосредственной опасности и получить медицинскую помощь. Не подвергайте себя повторному риску ради записи.',steps:['Обратитесь за медицинской помощью; сообщите врачу обстоятельства травмы и сохраните документы.','Когда это безопасно, запишите хронологию: время, место, действия, слова, свидетели и видимые повреждения.','Сохраните фото/видео в исходном виде и резервную копию в безопасном месте; не публикуйте персональные данные публично.','Сохраните одежду и другие возможные материалы, если это безопасно; не изменяйте и не очищайте их до получения консультации.','Обсудите с адвокатом способ и адресата обращения; сохраняйте подтверждение подачи и ответы.'],caution:'Не делайте выводов о правовой квалификации только по внешним признакам; срочность и маршрут зависят от фактов.'}},dtp:{title:'ДТП',body:LEGAL_RADAR.dtp},work:{title:'Трудовой конфликт',body:LEGAL_RADAR.work},housing:{title:'Авария в жилье',body:LEGAL_RADAR.housing},consumer:{title:'Спор с продавцом',body:LEGAL_RADAR.consumer},debt:{title:'Звонки по долгу',body:LEGAL_RADAR.debt}
+      };
+      function familyKitText(key){const item=FAMILY_KIT[key]||FAMILY_KIT.police;const b=item.body;return `${item.title}\n\n${b.urgent ? 'СНАЧАЛА БЕЗОПАСНОСТЬ\n'+b.urgent+'\n\n':''}${b.steps.map((s,i)=>`${i+1}. ${s}`).join('\n')}\n\nВАЖНО\n${b.caution||'Проверьте применимые нормы и обстоятельства конкретной ситуации.'}\n\nПроверка законодательства РФ: https://pravo.gov.ru/\nЭта памятка — общий ориентир, не индивидуальное юридическое заключение. Проверьте актуальность норм перед применением.`}
+      function renderFamilyKit(){const key=document.getElementById('familyKitSelect').value;const item=FAMILY_KIT[key]||FAMILY_KIT.police;const b=item.body;const el=document.getElementById('familyKitResult');el.innerHTML=`<h3>${escapeHTML(item.title)}</h3>${b.urgent?`<div class="danger-note">${escapeHTML(b.urgent)}</div>`:''}<ol>${b.steps.map(x=>`<li>${escapeHTML(x)}</li>`).join('')}</ol><div class="legal-meta">${escapeHTML(b.caution||'Проверьте применимые нормы и обстоятельства.')}<br>Официальный источник: <a href="https://pravo.gov.ru/" target="_blank" rel="noopener noreferrer">pravo.gov.ru</a></div>`;}
+      function downloadFamilyKit(){const key=document.getElementById('familyKitSelect').value;const blob=new Blob(['\ufeff'+familyKitText(key)],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`legal-first-aid-${key}.txt`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+      function printFamilyKit(){renderFamilyKit();window.print();}
+      function blobToDataURL(blob) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result || '').split(',')[1] || '');
+          reader.onerror = () => reject(reader.error || new Error('Не удалось прочитать оригинал файла'));
+          reader.readAsDataURL(blob);
+        });
+      }
+      function dataURLToBlob(base64, type) {
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        return new Blob([bytes], { type: type || 'application/octet-stream' });
+      }
+      async function exportAllLocalData() {
+        try {
+          const keys = ['lawyer_profile', 'lawyer_evidence', 'lawyer_history', 'lawyer_xp', 'lawyer_xp_completed'];
+          const data = { format: 'ya-v-nature-lawyer-local-backup', version: 2, exportedAt: new Date().toISOString(), warning: 'Резервная копия может содержать персональные данные и оригиналы файлов. Храните её в безопасном месте.', data: {}, originals: [] };
+          keys.forEach(key => { try { data.data[key] = JSON.parse(localStorage.getItem(key) || 'null'); } catch (_) { data.data[key] = null; } });
+          const records = await EvidenceFiles.list();
+          for (const record of records) {
+            if (!record || !record.id || !record.blob) continue;
+            data.originals.push({ id: record.id, name: record.name || 'evidence-file', type: record.type || record.blob.type || 'application/octet-stream', size: record.size || record.blob.size || 0, savedAt: record.savedAt || null, base64: await blobToDataURL(record.blob) });
+          }
+          const blob = new Blob([JSON.stringify(data)], { type: 'application/json;charset=utf-8' });
+          const url = URL.createObjectURL(blob); const a = document.createElement('a');
+          a.href = url; a.download = `ya-v-nature-lawyer-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1500);
+          showNotification(`Резервная копия создана. Оригиналов файлов: ${data.originals.length}. Храните файл безопасно.`, 'warning');
+        } catch (error) {
+          console.error('Ошибка резервного копирования:', error);
+          showNotification('Не удалось создать полную копию. Проверьте поддержку IndexedDB и свободное место.', 'error');
+        }
+      }
+      async function importAllLocalData(event) {
+        const input = event && event.target;
+        const file = input && input.files && input.files[0];
+        if (!file) return;
+        try {
+          const backup = JSON.parse(await file.text());
+          if (!backup || backup.format !== 'ya-v-nature-lawyer-local-backup' || ![2].includes(backup.version) || !backup.data || typeof backup.data !== 'object') throw new Error('Формат резервной копии не распознан');
+          if (!confirm('Восстановить данные из выбранной копии? Текущие профиль, история, журнал доказательств и XP будут заменены. Перед продолжением экспортируйте текущие данные, если они нужны.')) return;
+          const allowedKeys = ['lawyer_profile', 'lawyer_evidence', 'lawyer_history', 'lawyer_xp', 'lawyer_xp_completed'];
+          for (const key of allowedKeys) {
+            if (Object.prototype.hasOwnProperty.call(backup.data, key)) {
+              const value = backup.data[key];
+              if (value === null) localStorage.removeItem(key); else localStorage.setItem(key, JSON.stringify(value));
+            }
+          }
+          await EvidenceFiles.clear();
+          let restored = 0;
+          if (Array.isArray(backup.originals)) {
+            for (const item of backup.originals) {
+              if (!item || typeof item.id !== 'string' || typeof item.base64 !== 'string') continue;
+              const blob = dataURLToBlob(item.base64, item.type);
+              await EvidenceFiles.putRecord({ id: item.id, blob, name: item.name || 'evidence-file', type: item.type || blob.type, size: item.size || blob.size, savedAt: item.savedAt || new Date().toISOString() });
+              restored++;
+            }
+          }
+          loadProfile(); loadXP(); renderEvidence(); renderHistory();
+          showNotification(`Восстановление завершено. Оригиналов файлов восстановлено: ${restored}.`, 'success');
+        } catch (error) {
+          console.error('Ошибка восстановления:', error);
+          showNotification(`Не удалось восстановить копию: ${error.message || 'ошибка файла'}`, 'error');
+        } finally { if (input) input.value = ''; }
+      }
+      function deleteAllLocalData(){if(!confirm('Удалить профиль, журнал доказательств, историю документов и XP из локального хранилища этого браузера? Экспортируйте нужное заранее. Это не удалит файлы, ранее скачанные на устройство.'))return;['lawyer_profile','lawyer_evidence','lawyer_history','lawyer_xp'].forEach(k=>localStorage.removeItem(k));EvidenceFiles.clear();document.getElementById('docPreview').textContent='';document.getElementById('fio').value='';document.getElementById('address').value='';document.getElementById('phone').value='';if(stateMachine&&currentScenario){stateMachine=new StateMachine(currentScenario.id);renderDialog();renderActionButtons();}renderEvidence();renderHistory();loadXP();showNotification('Локальные данные приложения удалены. Скачанные файлы нужно удалить отдельно.','success');}
+
+      // ==========================================
+      // 🧠 8. UI ЛОГИКА (State)
+      // ==========================================
+      const ICON_PATHS = {
+        "shield-check": '<path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/>',
+        "scale": '<path d="m16 16 3-8 3 8a5 5 0 0 1-6 0Z"/><path d="m2 16 3-8 3 8a5 5 0 0 1-6 0Z"/><path d="M12 2v20M2 7h20M7 22h10"/>',
+        "compass": '<circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2.1 6.3-6.3 2.1 2.1-6.3 6.3-2.1Z"/>',
+        "briefcase-business": '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2"/>',
+        "house": '<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/>',
+        "shopping-bag": '<path d="M5 8h14l-1 13H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+        "credit-card": '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
+        "briefcase-medical": '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M12 10v6M9 13h6"/>',
+        "lock-keyhole": '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3M12 14v3"/>',
+        "archive": '<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v11h14V9M10 13h4"/>',
+        "list-check": '<path d="M9 6h12M9 12h12M9 18h12M3 6l1 1 2-2M3 12l1 1 2-2M3 18l1 1 2-2"/>',
+        "user-round": '<circle cx="12" cy="8" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/>',
+        "save": '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+        "file-check": '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 15l2 2 5-5"/>',
+        "copy": '<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',
+        "file-down": '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M12 12v6m-3-3 3 3 3-3"/>',
+        "file-text": '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/>',
+        "database": '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5M3 12a9 3 0 0 0 18 0"/>',
+        "trash-2": '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v5M14 11v5"/>',
+        "folder-check": '<path d="M3 5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="m8 14 2 2 4-4"/>',
+        "history": '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>',
+        "car-front": '<path d="m5 17-1 3M19 17l1 3M5 17H4a1 1 0 0 1-1-1v-4l2-6a2 2 0 0 1 2-1h10a2 2 0 0 1 2 1l2 6v4a1 1 0 0 1-1 1h-1M5 17h14M7 13h.01M17 13h.01M6 9h12"/>',
+        "users-round": '<path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8a3 3 0 0 1-2 2.83M20 21v-2a4 4 0 0 0-3-3.87"/>',
+        "file-up": '<path d="M12 16V4m-4 4 4-4 4 4"/><path d="M20 16.5V20H4v-3.5"/>',
+        "scroll-text": '<path d="M8 21h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H8a4 4 0 0 0 0 8h12M8 11v10a2 2 0 0 1-4 0v-1M12 7h5M12 15h5"/>',
+        "graduation-cap": '<path d="m2 10 10-5 10 5-10 5-10-5Z"/><path d="M6 12v5c3 3 9 3 12 0v-5M22 10v6"/>',
+        "book-open": '<path d="M12 7v14M3 5h5a4 4 0 0 1 4 4v12a4 4 0 0 0-4-4H3ZM21 5h-5a4 4 0 0 0-4 4v12a4 4 0 0 1 4-4h5Z"/>',
+        "notebook-pen": '<path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8M8 7h4M8 11h4M8 15h2"/><path d="m16 15 5-5 2 2-5 5-3 1Z"/>'
+      };
+      function iconSvg(name) { const path = ICON_PATHS[name] || ICON_PATHS.scale; return `<svg class="gold-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${path}</svg>`; }
+      function hydrateIcons(root=document) { root.querySelectorAll('.ui-icon[data-icon]').forEach(el => { if (!el.dataset.hydrated) { el.innerHTML = iconSvg(el.dataset.icon); el.dataset.hydrated = '1'; } }); }
+
+
+      // ==========================================
+      // 🎓 23. УЧЕБНЫЙ РЕЖИМ ДЛЯ СТУДЕНТОВ (изолирован)
+      // ==========================================
+      const STUDENT_LESSONS = [
+        {
+          id:'theory-law-sources', subject:'theory', title:'Источники права',
+          keywords:'источник права нормативный акт обычай прецедент',
+          summary:'Формы внешнего выражения и закрепления правовых норм. В разных правовых системах значение отдельных источников различается.',
+          task:'Сравни нормативный правовой акт, правовой обычай и судебный прецедент по способу формирования, форме закрепления и роли в правовой системе России.',
+          question:'Почему нельзя автоматически считать любой судебный акт нормативным правовым актом?',
+          source:'https://pravo.gov.ru/'
+        },
+        {
+          id:'theory-state', subject:'theory', title:'Государство и его функции',
+          keywords:'государство функции суверенитет публичная власть',
+          summary:'Государство — организация публичной политической власти на определённой территории. Функции описывают основные направления его деятельности.',
+          task:'Раздели функции государства на внутренние и внешние; для каждой приведи пример и объясни, почему пример относится к выбранной группе.',
+          question:'Чем функция государства отличается от конкретного полномочия государственного органа?',
+          source:'https://pravo.gov.ru/'
+        },
+        {
+          id:'theory-legal-rule', subject:'theory', title:'Норма права',
+          keywords:'норма права гипотеза диспозиция санкция',
+          summary:'В учебной модели структуру нормы часто раскрывают через гипотезу, диспозицию и санкцию. В конкретном нормативном тексте эти элементы не обязательно изложены в одной статье.',
+          task:'На примере учебной ситуации отдельно сформулируй условие действия правила, требуемое поведение и возможное последствие нарушения. Не выдавай учебную модель за дословный текст закона.',
+          question:'Почему структура нормы права и структура статьи нормативного акта — не одно и то же?',
+          source:'https://pravo.gov.ru/'
+        },
+        {
+          id:'constitutional-basics', subject:'constitutional', title:'Конституция и высшая юридическая сила',
+          keywords:'конституция высшая юридическая сила прямое действие конституционное право',
+          summary:'Конституция РФ закрепляет основы конституционного строя, права и свободы человека и гражданина, а также систему публичной власти. Юридические выводы следует проверять по официальному тексту и действующим поправкам.',
+          task:'Открой официальный текст Конституции РФ и найди нормы о правах и свободах. Запиши номер статьи, точный фрагмент и собственное объяснение отдельно.',
+          question:'Как отличить точную цитату Конституции от пересказа её смысла?',
+          source:'https://pravo.gov.ru/'
+        },
+        {
+          id:'constitutional-rights', subject:'constitutional', title:'Права и свободы человека',
+          keywords:'права свободы человек гражданин ограничения обязанности',
+          summary:'При разборе конституционного права важно различать право, гарантию его реализации, обязанность и предусмотренное законом ограничение.',
+          task:'Выбери одно право из официального текста Конституции. Найди норму о его гарантии или допустимом ограничении и объясни связь, не смешивая разные положения.',
+          question:'Почему наличие права само по себе не всегда отвечает на вопрос о порядке его реализации?',
+          source:'https://pravo.gov.ru/'
+        },
+        {
+          id:'civil-legal-relations', subject:'civil', title:'Гражданское правоотношение',
+          keywords:'гражданское право правоотношение субъект объект содержание',
+          summary:'Для учебного анализа гражданского правоотношения обычно выделяют субъектов, объект и содержание — субъективные права и юридические обязанности.',
+          task:'Разбери пример договора купли-продажи: кто участники, что является объектом и какие права и обязанности возникают у сторон. Затем проверь соответствующие положения ГК РФ.',
+          question:'Чем объект правоотношения отличается от его субъекта?',
+          source:'https://pravo.gov.ru/'
+        },
+        {
+          id:'civil-capacity', subject:'civil', title:'Правоспособность и дееспособность',
+          keywords:'правоспособность дееспособность гражданин возраст сделки',
+          summary:'Правоспособность означает способность иметь гражданские права и нести обязанности; дееспособность связана со способностью своими действиями приобретать и осуществлять права, создавать обязанности и исполнять их. Для конкретной ситуации важны возраст и специальные правила закона.',
+          task:'Составь таблицу различий: определение, момент возникновения, возможность самостоятельных юридически значимых действий и нормы ГК РФ для проверки.',
+          question:'Почему способность иметь право собственности не тождественна возможности самостоятельно заключить любую сделку?',
+          source:'https://pravo.gov.ru/'
+        },
+        {
+          id:'civil-property', subject:'civil', title:'Право собственности',
+          keywords:'собственность владение пользование распоряжение вещное право',
+          summary:'Классическое содержание права собственности включает владение, пользование и распоряжение. Для конкретного объекта и ситуации действуют специальные условия и ограничения.',
+          task:'Для выбранного примера отдельно опиши владение, пользование и распоряжение. Затем найди и проверь соответствующие нормы ГК РФ в актуальной редакции.',
+          question:'Может ли лицо фактически пользоваться вещью, не являясь её собственником? Приведи правовую конструкцию и проверь её.',
+          source:'https://pravo.gov.ru/'
+        }
+      ];
+
+      function toggleStudentMode() {
+        const card = document.getElementById('studentModeCard');
+        const btn = document.querySelector('.student-launch-btn');
+        if (!card || !btn) return;
+        const opening = card.hidden;
+        card.hidden = !opening;
+        btn.setAttribute('aria-expanded', String(opening));
+        if (opening) {
+          renderStudentLessons();
+          card.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      }
+
+      function resetStudentFilters() {
+        document.getElementById('studentSubject').value = 'all';
+        document.getElementById('studentSearch').value = '';
+        renderStudentLessons();
+      }
+
+      function toggleLessonDetails(lessonId) {
+        const card = document.getElementById(`lesson-${lessonId}`);
+        if (card) {
+          card.classList.toggle('expanded');
+        }
+      }
+
+      function renderStudentLessons() {
+        const grid = document.getElementById('studentLessonGrid');
+        if (!grid) return;
+        const subject = document.getElementById('studentSubject')?.value || 'all';
+        const query = (document.getElementById('studentSearch')?.value || '').trim().toLocaleLowerCase('ru-RU');
+        const matches = STUDENT_LESSONS.filter(lesson => {
+          const subjectMatch = subject === 'all' || lesson.subject === subject;
+          const haystack = [lesson.title, lesson.keywords, lesson.summary, lesson.task, lesson.question].join(' ').toLocaleLowerCase('ru-RU');
+          return subjectMatch && (!query || haystack.includes(query));
+        });
+        if (!matches.length) {
+          grid.innerHTML = '<div class="student-empty">Темы не найдены. Попробуй другое слово или выбери «Все первые курсы».</div>';
+          return;
+        }
+        grid.innerHTML = matches.map(lesson => `
+          <article class="student-lesson" id="lesson-${lesson.id}">
+            <h3 onclick="toggleLessonDetails('${lesson.id}')">${escapeHTML(lesson.title)}</h3>
+            <p>${escapeHTML(lesson.summary)}</p>
+            <div class="student-details">
+              <div class="student-keywords"><b>Ключевые понятия:</b> ${escapeHTML(lesson.keywords)}</div>
+              <div class="student-task"><b>Практическое задание:</b> ${escapeHTML(lesson.task)}</div>
+              <p><b>Вопрос для самопроверки:</b> ${escapeHTML(lesson.question)}</p>
+              <p><b>Учебный план разбора:</b></p>
+              <ol>
+                <li>Определи ключевые термины из темы</li>
+                <li>Найди соответствующие нормы в официальном источнике</li>
+                <li>Составь пример применения нормы</li>
+                <li>Сформулируй вывод и его границы</li>
+              </ol>
+              <a href="${lesson.source}" target="_blank" rel="noopener noreferrer">Открыть официальный портал правовой информации</a>
+            </div>
+          </article>
+        `).join('');
+      }
+
+      function clearStudentQuestion() {
+        document.getElementById('studentQuestion').value = '';
+        document.getElementById('studentStudyPlan').hidden = true;
+        document.getElementById('studentStudyPlan').innerHTML = '';
+      }
+
+      function buildStudentStudyPlan() {
+        const input = document.getElementById('studentQuestion');
+        const output = document.getElementById('studentStudyPlan');
+        const question = (input?.value || '').trim();
+        if (!output) return;
+        if (!question) {
+          output.hidden = false;
+          output.innerHTML = '<p>Сначала введи вопрос или тему, которую нужно разобрать.</p>';
+          return;
+        }
+        output.hidden = false;
+        output.innerHTML = `<b>Структурированный план разбора</b>
+          <div style="margin-top:12px;padding:12px;background:#0d1829;border:1px solid #2d3d56;border-radius:8px;">
+            <p><b>1. Постановка вопроса</b><br>Что именно требуется выяснить: ${escapeHTML(question)}</p>
+          </div>
+          <div style="margin-top:12px;padding:12px;background:#0d1829;border:1px solid #2d3d56;border-radius:8px;">
+            <p><b>2. Ключевые понятия</b><br>Какие юридические термины необходимо определить и сформулировать своими словами.</p>
+          </div>
+          <div style="margin-top:12px;padding:12px;background:#0d1829;border:1px solid #2d3d56;border-radius:8px;">
+            <p><b>3. Правовая проблема</b><br>Какое противоречие или вопрос предстоит исследовать в рамках темы.</p>
+          </div>
+          <div style="margin-top:12px;padding:12px;background:#0d1829;border:1px solid #2d3d56;border-radius:8px;">
+            <p><b>4. Нормативная база</b><br>Какие нормативные акты нужно найти и проверить на официальном портале.</p>
+          </div>
+          <div style="margin-top:12px;padding:12px;background:#0d1829;border:1px solid #2d3d56;border-radius:8px;">
+            <p><b>5. Официальный источник</b><br>Где проверять текст документа: <a href="https://pravo.gov.ru/" target="_blank" rel="noopener noreferrer">pravo.gov.ru</a></p>
+          </div>
+          <div style="margin-top:12px;padding:12px;background:#0d1829;border:1px solid #2d3d56;border-radius:8px;">
+            <p><b>6. Аргументы</b><br>Доводы в поддержку возможных выводов на основе найденных норм.</p>
+          </div>
+          <div style="margin-top:12px;padding:12px;background:#0d1829;border:1px solid #2d3d56;border-radius:8px;">
+            <p><b>7. Контраргументы</b><br>Альтернативные позиции и ограничения, которые нужно учесть.</p>
+          </div>
+          <div style="margin-top:12px;padding:12px;background:#0d1829;border:1px solid #2d3d56;border-radius:8px;">
+            <p><b>8. Вывод</b><br>Краткий ответ на исходный вопрос с опорой на проверенные нормы.</p>
+          </div>
+          <div style="margin-top:12px;padding:12px;background:#0d1829;border:1px solid #2d3d56;border-radius:8px;">
+            <p><b>9. Что ещё проверить</b></p>
+            <ul style="margin:8px 0;padding-left:20px;">
+              <li>Редакцию акта и дату действия нормы</li>
+              <li>Применимость нормы к поставленному вопросу</li>
+              <li>Связанные положения и исключения</li>
+              <li>Судебную практику, если она релевантна</li>
+            </ul>
+          </div>
+          <p class="student-launch-note" style="margin-top:12px;">Это локальный шаблон для структурирования работы, а не генеративный юридический ИИ. Приложение не определяет автоматически правильный ответ, актуальную редакцию закона или действующую судебную практику. Номера статей и актуальность норм необходимо проверять по первоисточнику.</p>`;
+      }
+
+      // ==========================================
+      // 🧠 ТРЕНАЖЁР ЗНАНИЙ v3.1
+      // ==========================================
+      const TRAINER_QUESTIONS = [
+        // Теория государства и права (4 вопроса)
+        {
+          id: 'tgp-1',
+          subject: 'theory',
+          question: 'Что такое правовой обычай в системе источников права?',
+          options: [
+            'Правило поведения, сложившееся в результате многократного и единообразного применения и признаваемое государством',
+            'Нормативный акт, принятый законодательным органом',
+            'Судебное решение, ставшее обязательным для аналогичных дел',
+            'Международный договор, ратифицированный государством'
+          ],
+          correctIndex: 0,
+          explanation: 'Правовой обычай — это исторически сложившееся правило поведения, которое вошло в привычку людей и обеспечивается государственным принуждением. В современном российском праве обычай играет вспомогательную роль.'
+        },
+        {
+          id: 'tgp-2',
+          subject: 'theory',
+          question: 'Что такое юридическая ответственность?',
+          options: [
+            'Любое неблагоприятное последствие для лица',
+            'Применение к правонарушителю мер государственного принуждения',
+            'Общественное осуждение противоправного поведения',
+            'Добровольное возмещение вреда пострадавшему'
+          ],
+          correctIndex: 1,
+          explanation: 'Юридическая ответственность — это применение к правонарушителю предусмотренных законом мер государственного принуждения в виде лишения прав или наложения обязанностей. Она наступает за совершение правонарушения.'
+        },
+        {
+          id: 'tgp-3',
+          subject: 'theory',
+          question: 'Что такое правосубъектность?',
+          options: [
+            'Способность иметь права и нести обязанности',
+            'Способность своими действиями приобретать и осуществлять права',
+            'Дееспособность и правоспособность вместе',
+            'Способность нести ответственность за свои действия'
+          ],
+          correctIndex: 2,
+          explanation: 'Правосубъектность — это способность быть субъектом права, то есть обладать правами и нести обязанности. Она включает правоспособность (способность иметь права) и дееспособность (способность своими действиями осуществлять права).'
+        },
+        {
+          id: 'tgp-4',
+          subject: 'theory',
+          question: 'Что такое норма права?',
+          options: [
+            'Любое правило поведения в обществе',
+            'Правило поведения, установленное государством и обеспеченное его принудительной силой',
+            'Моральное требование к человеку',
+            'Рекомендация по поведению в конкретной ситуации'
+          ],
+          correctIndex: 1,
+          explanation: 'Норма права — это общеобязательное правило поведения, установленное государством и обеспеченное мерами государственного принуждения. Норма права отличается от других социальных норм тем, что она исходит от государства и охраняется им.'
+        },
+        // Конституционное право РФ (4 вопроса)
+        {
+          id: 'const-1',
+          subject: 'constitutional',
+          question: 'Какой орган в РФ осуществляет судебную власть?',
+          options: [
+            'Правительство РФ',
+            'Государственная Дума',
+            'Суды РФ',
+            'Президент РФ'
+          ],
+          correctIndex: 2,
+          explanation: 'Согласно статье 118 Конституции РФ, судебная власть в Российской Федерации осуществляется только судами. Судебная система устанавливается Конституцией РФ и федеральным конституционным законом.'
+        },
+        {
+          id: 'const-2',
+          subject: 'constitutional',
+          question: 'С какого возраста гражданин РФ имеет право избирать в органы государственной власти (активное избирательное право)?',
+          options: [
+            'С 16 лет',
+            'С 18 лет',
+            'С 21 года',
+            'С 25 лет'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 32 Конституции РФ, право избирать и быть избранным в органы государственной власти и органы местного самоуправления, а также участвовать в референдуме имеют граждане РФ, достигшие 18 лет.'
+        },
+        {
+          id: 'const-3',
+          subject: 'constitutional',
+          question: 'Что является высшей юридической силой в системе нормативных правовых актов РФ?',
+          options: [
+            'Федеральный конституционный закон',
+            'Федеральный закон',
+            'Конституция РФ',
+            'Указ Президента РФ'
+          ],
+          correctIndex: 2,
+          explanation: 'Согласно статье 15 Конституции РФ, Конституция Российской Федерации имеет высшую юридическую силу, прямое действие и применяется на всей территории России. Законы и иные правовые акты не должны противоречить Конституции.'
+        },
+        {
+          id: 'const-4',
+          subject: 'constitutional',
+          question: 'Какой орган формирует Правительство РФ?',
+          options: [
+            'Государственная Дума',
+            'Совет Федерации',
+            'Президент РФ',
+            'Конституционный Суд'
+          ],
+          correctIndex: 2,
+          explanation: 'Согласно статье 111 Конституции РФ, Председатель Правительства Российской Федерации назначается Президентом Российской Федерации с согласия Государственной Думы. Президент также предлагает кандидатуры на должности заместителей Председателя Правительства и федеральных министров.'
+        },
+        // Гражданское право РФ (4 вопроса)
+        {
+          id: 'civil-1',
+          subject: 'civil',
+          question: 'С какого возраста наступает полная дееспособность граждан РФ по общему правилу?',
+          options: [
+            'С 14 лет',
+            'С 16 лет',
+            'С 18 лет',
+            'С 21 года'
+          ],
+          correctIndex: 2,
+          explanation: 'Согласно статье 21 ГК РФ, способность гражданина своими действиями приобретать и осуществлять гражданские права, создавать для себя гражданские обязанности и исполнять их (гражданская дееспособность) возникает в полном объеме с наступлением совершеннолетия, то есть по достижении 18 лет.'
+        },
+        {
+          id: 'civil-2',
+          subject: 'civil',
+          question: 'Что такое исковая давность?',
+          options: [
+            'Срок для обращения в суд',
+            'Срок существования права',
+            'Срок для исполнения обязательства',
+            'Срок для регистрации права'
+          ],
+          correctIndex: 0,
+          explanation: 'Согласно статье 195 ГК РФ, исковая давность — это срок для защиты права по иску лица, право которого нарушено. Общий срок исковой давности составляет три года (статья 196 ГК РФ).'
+        },
+        {
+          id: 'civil-3',
+          subject: 'civil',
+          question: 'Что является одним из элементов содержания права собственности?',
+          options: [
+            'Право наследования',
+            'Право владения',
+            'Право залога',
+            'Право аренды'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 209 ГК РФ, собственнику принадлежат права владения, пользования и распоряжения своим имуществом. Это триада правомочий собственности. Владение — это фактическое обладание вещью.'
+        },
+        {
+          id: 'civil-4',
+          subject: 'civil',
+          question: 'Что такое договор?',
+          options: [
+            'Односторонняя сделка',
+            'Соглашение двух или более лиц об установлении, изменении или прекращении гражданских прав и обязанностей',
+            'Нормативный акт',
+            'Судебное решение'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 420 ГК РФ, договор — это соглашение двух или более лиц об установлении, изменении или прекращении гражданских прав и обязанностей. Договор является двусторонней или многосторонней сделкой.'
+        },
+        // Дополнительные вопросы по теории государства и права (16 вопросов)
+        {
+          id: 'tgp-5',
+          subject: 'theory',
+          question: 'Что такое правоспособность?',
+          options: [
+            'Способность своими действиями приобретать и осуществлять права',
+            'Способность иметь права и нести обязанности',
+            'Способность нести ответственность за свои действия',
+            'Фактическое обладание вещью'
+          ],
+          correctIndex: 1,
+          explanation: 'Правоспособность — это способность иметь гражданские права и нести обязанности. Она признаётся за всеми гражданами с момента рождения и прекращается со смертью.'
+        },
+        {
+          id: 'tgp-6',
+          subject: 'theory',
+          question: 'Что такое дееспособность?',
+          options: [
+            'Способность иметь права и нести обязанности',
+            'Способность своими действиями приобретать и осуществлять права',
+            'Способность нести ответственность за свои действия',
+            'Способность быть собственником имущества'
+          ],
+          correctIndex: 1,
+          explanation: 'Дееспособность — это способность своими действиями приобретать и осуществлять гражданские права, создавать для себя гражданские обязанности и исполнять их.'
+        },
+        {
+          id: 'tgp-7',
+          subject: 'theory',
+          question: 'Что такое правонарушение?',
+          options: [
+            'Любое действие человека',
+            'Виновное противоправное деяние, нарушающее нормы права',
+            'Аморальный поступок',
+            'Ошибка в поведении'
+          ],
+          correctIndex: 1,
+          explanation: 'Правонарушение — это виновное, противоправное деяние (действие или бездействие) физического или юридического лица, нарушающее нормы права.'
+        },
+        {
+          id: 'tgp-8',
+          subject: 'theory',
+          question: 'Что такое состав правонарушения?',
+          options: [
+            'Список всех правонарушений в кодексе',
+            'Совокупность элементов, необходимых для квалификации деяния как правонарушения',
+            'Описание наказания за правонарушение',
+            'Перечень свидетелей правонарушения'
+          ],
+          correctIndex: 1,
+          explanation: 'Состав правонарушения включает четыре элемента: объект, объективная сторона, субъект, субъективная сторона. Наличие всех элементов необходимо для квалификации деяния как правонарушения.'
+        },
+        {
+          id: 'tgp-9',
+          subject: 'theory',
+          question: 'Что является объектом правонарушения?',
+          options: [
+            'Человек, совершивший правонарушение',
+            'Общественные отношения, охраняемые правом, на которые посягает правонарушение',
+            'Предмет, который был украден',
+            'Место совершения правонарушения'
+          ],
+          correctIndex: 1,
+          explanation: 'Объект правонарушения — это охраняемые законом общественные отношения, которым причиняется вред в результате правонарушения.'
+        },
+        {
+          id: 'tgp-10',
+          subject: 'theory',
+          question: 'Что такое субъект права?',
+          options: [
+            'Любой человек',
+            'Лицо, обладающее правосубъектностью и способное быть участником правовых отношений',
+            'Только гражданин РФ',
+            'Только организация'
+          ],
+          correctIndex: 1,
+          explanation: 'Субъект права — это лицо (физическое или юридическое), обладающее правосубъектностью и способное быть участником правовых отношений, то есть иметь права и нести обязанности.'
+        },
+        {
+          id: 'tgp-11',
+          subject: 'theory',
+          question: 'Что такое юридический факт?',
+          options: [
+            'Факт, известный юристу',
+            'Жизненное обстоятельство, с которым закон связывает возникновение, изменение или прекращение правовых отношений',
+            'Документ, заверенный юристом',
+            'Судебное решение'
+          ],
+          correctIndex: 1,
+          explanation: 'Юридический факт — это конкретное жизненное обстоятельство, с которым норма права связывает возникновение, изменение или прекращение правовых последствий.'
+        },
+        {
+          id: 'tgp-12',
+          subject: 'theory',
+          question: 'Что такое правовая норма?',
+          options: [
+            'Любое правило в обществе',
+            'Правило поведения, установленное государством и обеспеченное мерами государственного принуждения',
+            'Моральное требование',
+            'Совет юриста'
+          ],
+          correctIndex: 1,
+          explanation: 'Правовая норма — это установленное государством общеобязательное правило поведения, обеспеченное мерами государственного принуждения.'
+        },
+        {
+          id: 'tgp-13',
+          subject: 'theory',
+          question: 'Из каких элементов состоит структура правовой нормы?',
+          options: [
+            'Только из гипотезы',
+            'Только из диспозиции',
+            'Только из санкции',
+            'Из гипотезы, диспозиции и санкции'
+          ],
+          correctIndex: 3,
+          explanation: 'Структура правовой нормы традиционно включает три элемента: гипотеза (условия действия нормы), диспозиция (само правило поведения) и санкция (меры за нарушение).'
+        },
+        {
+          id: 'tgp-14',
+          subject: 'theory',
+          question: 'Что такое гипотеза правовой нормы?',
+          options: [
+            'Правило поведения',
+            'Условие, при котором норма действует',
+            'Наказание за нарушение',
+            'Разъяснение нормы'
+          ],
+          correctIndex: 1,
+          explanation: 'Гипотеза — это часть правовой нормы, которая указывает на условия, обстоятельства, при которых данная норма подлежит применению.'
+        },
+        {
+          id: 'tgp-15',
+          subject: 'theory',
+          question: 'Что такое диспозиция правовой нормы?',
+          options: [
+            'Условие действия нормы',
+            'Санкция за нарушение',
+            'Само правило поведения, предписание',
+            'Комментарий к норме'
+          ],
+          correctIndex: 2,
+          explanation: 'Диспозиция — это часть правовой нормы, которая содержит само правило поведения, устанавливает права и обязанности участников правоотношения.'
+        },
+        {
+          id: 'tgp-16',
+          subject: 'theory',
+          question: 'Что такое санкция правовой нормы?',
+          options: [
+            'Условие действия нормы',
+            'Правило поведения',
+            'Меры государственного принуждения за нарушение нормы',
+            'Пояснение к норме'
+          ],
+          correctIndex: 2,
+          explanation: 'Санкция — это часть правовой нормы, которая указывает на меры государственного принуждения, применяемые к нарушителям установленного правила поведения.'
+        },
+        {
+          id: 'tgp-17',
+          subject: 'theory',
+          question: 'Что такое система права?',
+          options: [
+            'Список всех юристов',
+            'Внутреннее строение права, выраженное в единстве и согласованности действующих норм',
+            'Судебная система',
+            'Система юридического образования'
+          ],
+          correctIndex: 1,
+          explanation: 'Система права — это внутреннее строение права, выражающееся в единстве и согласованности действующих норм права и их делении на отрасли и институты.'
+        },
+        {
+          id: 'tgp-18',
+          subject: 'theory',
+          question: 'Что такое отрасль права?',
+          options: [
+            'Отдел в юридической фирме',
+            'Совокупность правовых норм, регулирующих самостоятельную, качественно однородную сферу общественных отношений',
+            'Группа юристов',
+            'Раздел учебника'
+          ],
+          correctIndex: 1,
+          explanation: 'Отрасль права — это совокупность правовых норм, регулирующих самостоятельную, качественно однородную сферу общественных отношений с помощью специфического метода правового регулирования.'
+        },
+        {
+          id: 'tgp-19',
+          subject: 'theory',
+          question: 'Что такое правовое отношение?',
+          options: [
+            'Отношение между юристами',
+            'Общественное отношение, урегулированное нормами права',
+            'Отношение в суде',
+            'Отношение с полицией'
+          ],
+          correctIndex: 1,
+          explanation: 'Правовое отношение — это общественное отношение, урегулированное нормами права, участники которого имеют взаимные права и обязанности.'
+        },
+        {
+          id: 'tgp-20',
+          subject: 'theory',
+          question: 'Что такое правоприменение?',
+          options: [
+            'Изучение права в университете',
+            'Деятельность компетентных государственных органов по реализации правовых норм в конкретном случае',
+            'Применение права в личных целях',
+            'Написание законов'
+          ],
+          correctIndex: 1,
+          explanation: 'Правоприменение — это властная деятельность компетентных государственных органов по разрешению конкретных юридических дел и изданию индивидуальных правовых актов на основе норм права.'
+        },
+        // Дополнительные вопросы по конституционному праву РФ (16 вопросов)
+        {
+          id: 'const-5',
+          subject: 'constitutional',
+          question: 'Что является источником высшей юридической силы в РФ?',
+          options: [
+            'Федеральный закон',
+            'Указ Президента',
+            'Конституция РФ',
+            'Постановление Правительства'
+          ],
+          correctIndex: 2,
+          explanation: 'Согласно статье 15 Конституции РФ, Конституция Российской Федерации имеет высшую юридическую силу. Законы и иные правовые акты не должны противоречить Конституции.'
+        },
+        {
+          id: 'const-6',
+          subject: 'constitutional',
+          question: 'Какой орган является главой государства в РФ?',
+          options: [
+            'Председатель Правительства',
+            'Председатель Государственной Думы',
+            'Президент РФ',
+            'Председатель Совета Федерации'
+          ],
+          correctIndex: 2,
+          explanation: 'Согласно статье 80 Конституции РФ, Президент Российской Федерации является главой государства.'
+        },
+        {
+          id: 'const-7',
+          subject: 'constitutional',
+          question: 'Каков срок полномочий Президента РФ?',
+          options: [
+            '4 года',
+            '5 лет',
+            '6 лет',
+            '7 лет'
+          ],
+          correctIndex: 2,
+          explanation: 'Согласно статье 81 Конституции РФ, Президент Российской Федерации избирается сроком на 6 лет.'
+        },
+        {
+          id: 'const-8',
+          subject: 'constitutional',
+          question: 'Что является высшим представительным и законодательным органом РФ?',
+          options: [
+            'Совет Федерации',
+            'Государственная Дума',
+            'Правительство РФ',
+            'Президент РФ'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 95 Конституции РФ, Государственная Дума является нижней палатой Федерального Собрания — парламента Российской Федерации, который является высшим представительным и законодательным органом.'
+        },
+        {
+          id: 'const-9',
+          subject: 'constitutional',
+          question: 'Сколько депутатов Государственной Думы избирается по партийным спискам?',
+          options: [
+            'Все депутаты',
+            'Половина депутатов',
+            '225 депутатов',
+            'Никто'
+          ],
+          correctIndex: 2,
+          explanation: 'Согласно Федеральному закону «О выборах депутатов Государственной Думы Федерального Собрания Российской Федерации», 225 депутатов избираются по федеральному избирательному округу пропорционально числу голосов, поданных за федеральные списки кандидатов.'
+        },
+        {
+          id: 'const-10',
+          subject: 'constitutional',
+          question: 'Что такое референдум в РФ?',
+          options: [
+            'Выборы Президента',
+            'Выборы в Государственную Думу',
+            'Всенародное голосование по важным вопросам государственной жизни',
+            'Опрос общественного мнения'
+          ],
+          correctIndex: 2,
+          explanation: 'Согласно Федеральному конституционному закону «О референдуме Российской Федерации», референдум — это всенародное голосование граждан РФ по вопросам государственного значения.'
+        },
+        {
+          id: 'const-11',
+          subject: 'constitutional',
+          question: 'Кто обладает правом законодательной инициативы в РФ?',
+          options: [
+            'Только Президент',
+            'Только депутаты Государственной Думы',
+            'Президент, Совет Федерации, Правительство, законодательные органы субъектов РФ, депутаты Государственной Думы',
+            'Только Правительство'
+          ],
+          correctIndex: 2,
+          explanation: 'Согласно статье 104 Конституции РФ, правом законодательной инициативы обладают Президент РФ, Совет Федерации, сенаторы, депутаты Государственной Думы, Правительство РФ, законодательные органы субъектов РФ.'
+        },
+        {
+          id: 'const-12',
+          subject: 'constitutional',
+          question: 'Что такое федеративное устройство РФ?',
+          options: [
+            'Унитарное государство',
+            'Форма государственно-территориального устройства, при которой государство состоит из субъектов, обладающих определённой политической самостоятельностью',
+            'Конфедерация',
+            'Монархия'
+          ],
+          correctIndex: 1,
+          explanation: 'Российская Федерация — федеративное государство, состоящее из равноправных субъектов (республик, краёв, областей, городов федерального значения, автономной области, автономных округов).'
+        },
+        {
+          id: 'const-13',
+          subject: 'constitutional',
+          question: 'Какие права относятся к личным (гражданским) правам человека?',
+          options: [
+            'Право на образование',
+            'Право на труд',
+            'Право на жизнь и личную неприкосновенность',
+            'Право на участие в управлении делами государства'
+          ],
+          correctIndex: 2,
+          explanation: 'Право на жизнь, достоинство личности, личную неприкосновенность относятся к личным (гражданским) правам человека, закреплённым в главе 2 Конституции РФ.'
+        },
+        {
+          id: 'const-14',
+          subject: 'constitutional',
+          question: 'Что такое гражданство РФ?',
+          options: [
+            'Проживание на территории РФ',
+            'Устойчивая правовая связь лица с РФ, выражающаяся в совокупности их взаимных прав, обязанностей и ответственности',
+            'Рождение в РФ',
+            'Владение имуществом в РФ'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно Федеральному закону «О гражданстве Российской Федерации», гражданство — это устойчивая правовая связь лица с Российской Федерацией, выражающаяся в совокупности их взаимных прав, обязанностей и ответственности.'
+        },
+        {
+          id: 'const-15',
+          subject: 'constitutional',
+          question: 'В каком случае гражданин РФ может быть лишён гражданства?',
+          options: [
+            'За совершение преступления',
+            'За неуплату налогов',
+            'Гражданин РФ не может быть лишён гражданства',
+            'За выезд из страны'
+          ],
+          correctIndex: 2,
+          explanation: 'Согласно статье 6 Конституции РФ, гражданин Российской Федерации не может быть лишён своего гражданства или права изменить его.'
+        },
+        {
+          id: 'const-16',
+          subject: 'constitutional',
+          question: 'Что такое разделение властей?',
+          options: [
+            'Разделение страны на части',
+            'Разделение государственных полномочий между законодательной, исполнительной и судебной властями',
+            'Разделение полномочий между регионами',
+            'Разделение полномочий между партиями'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 10 Конституции РФ, государственная власть в Российской Федерации осуществляется на основе разделения на законодательную, исполнительную и судебную.'
+        },
+        {
+          id: 'const-17',
+          subject: 'constitutional',
+          question: 'Какой орган осуществляет исполнительную власть в РФ?',
+          options: [
+            'Государственная Дума',
+            'Правительство РФ',
+            'Суды РФ',
+            'Совет Федерации'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 110 Конституции РФ, исполнительную власть в Российской Федерации осуществляет Правительство Российской Федерации.'
+        },
+        {
+          id: 'const-18',
+          subject: 'constitutional',
+          question: 'Что такое местное самоуправление?',
+          options: [
+            'Управление регионом из центра',
+            'Самостоятельное решение населением вопросов местного значения',
+            'Управление городом губернатором',
+            'Часть исполнительной власти'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 130 Конституции РФ, местное самоуправление обеспечивает самостоятельное решение населением вопросов местного значения.'
+        },
+        {
+          id: 'const-19',
+          subject: 'constitutional',
+          question: 'Что такое Конституционный Суд РФ?',
+          options: [
+            'Суд по уголовным делам',
+            'Суд, проверяющий конституционность законов и актов',
+            'Суд по гражданским делам',
+            'Арбитражный суд'
+          ],
+          correctIndex: 1,
+          explanation: 'Конституционный Суд Российской Федерации — судебный орган конституционного контроля, проверяющий соответствие законов и иных нормативных актов Конституции РФ.'
+        },
+        {
+          id: 'const-20',
+          subject: 'constitutional',
+          question: 'Какие права относятся к политическим правам?',
+          options: [
+            'Право на жизнь',
+            'Право на образование',
+            'Право избирать и быть избранным, право на участие в референдуме',
+            'Право на социальное обеспечение'
+          ],
+          correctIndex: 2,
+          explanation: 'Право избирать и быть избранным, право на участие в управлении делами государства, право на участие в референдуме относятся к политическим правам граждан.'
+        },
+        // Дополнительные вопросы по гражданскому праву РФ (16 вопросов)
+        {
+          id: 'civil-5',
+          subject: 'civil',
+          question: 'Что такое юридическое лицо?',
+          options: [
+            'Физическое лицо с юридическим образованием',
+            'Организация, которая имеет в собственности, хозяйственном ведении или оперативном управлении обособленное имущество и отвечает по своим обязательствам этим имуществом',
+            'Человек, работающий юристом',
+            'Государственный орган'
+          ],
+          correctIndex: 1,
+          explanation: 'Юридическое лицо — это организация, которая имеет в собственности, хозяйственном ведении или оперативном управлении обособленное имущество и отвечает по своим обязательствам этим имуществом.'
+        },
+        {
+          id: 'civil-6',
+          subject: 'civil',
+          question: 'Что такое сделка?',
+          options: [
+            'Только письменный договор',
+            'Действие граждан и юридических лиц, направленное на установление, изменение или прекращение гражданских прав и обязанностей',
+            'Только устное соглашение',
+            'Судебное решение'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 153 ГК РФ, сделкой признаётся действие граждан и юридических лиц, направленное на установление, изменение или прекращение гражданских прав и обязанностей.'
+        },
+        {
+          id: 'civil-7',
+          subject: 'civil',
+          question: 'Что такое представительство?',
+          options: [
+            'Самостоятельное совершение сделки',
+            'Совершение одним лицом (представителем) в силу имеющихся у него полномочий сделок от имени другого лица (представляемого)',
+            'Представление документов в суд',
+            'Участие в судебном процессе'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 182 ГК РФ, представительство — это совершение одним лицом (представителем) в силу имеющихся у него полномочий сделок и иных юридических действий от имени и в интересах другого лица (представляемого).'
+        },
+        {
+          id: 'civil-8',
+          subject: 'civil',
+          question: 'Что такое доверенность?',
+          options: [
+            'Письменное уполномочие, выдаваемое одним лицом другому лицу для представительства перед третьими лицами',
+            'Устное разрешение',
+            'Договор',
+            'Судебный документ'
+          ],
+          correctIndex: 0,
+          explanation: 'Согласно статье 185 ГК РФ, доверенность — это письменное уполномочие, выдаваемое одним лицом другому лицу для представительства перед третьими лицами.'
+        },
+        {
+          id: 'civil-9',
+          subject: 'civil',
+          question: 'Что такое срок исковой давности?',
+          options: [
+            'Срок существования права',
+            'Срок для защиты права по иску лица, право которого нарушено',
+            'Срок исполнения обязательства',
+            'Срок регистрации права'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 195 ГК РФ, исковая давность — это срок для защиты права по иску лица, право которого нарушено.'
+        },
+        {
+          id: 'civil-10',
+          subject: 'civil',
+          question: 'Каков общий срок исковой давности?',
+          options: [
+            '1 год',
+            '2 года',
+            '3 года',
+            '5 лет'
+          ],
+          correctIndex: 2,
+          explanation: 'Согласно статье 196 ГК РФ, общий срок исковой давности составляет три года.'
+        },
+        {
+          id: 'civil-11',
+          subject: 'civil',
+          question: 'Что такое обязательство?',
+          options: [
+            'Желание выполнить что-то',
+            'Правоотношение, в котором одно лицо (должник) обязано совершить в пользу другого лица (кредитора) определённое действие',
+            'Судебное решение',
+            'Договор'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 307 ГК РФ, обязательство — это правоотношение, в силу которого одно лицо (должник) обязано совершить в пользу другого лица (кредитора) определённое действие.'
+        },
+        {
+          id: 'civil-12',
+          subject: 'civil',
+          question: 'Что такое способ обеспечения обязательства?',
+          options: [
+            'Желание должника',
+            'Мера, стимулирующая должника к надлежащему исполнению обязательства и гарантирующая интересы кредитора',
+            'Судебный приказ',
+            'Письменное обещание'
+          ],
+          correctIndex: 1,
+          explanation: 'Способы обеспечения обязательства (неустойка, залог, поручительство и др.) служат дополнительной гарантией исполнения обязательств и защиты интересов кредитора.'
+        },
+        {
+          id: 'civil-13',
+          subject: 'civil',
+          question: 'Что такое неустойка?',
+          options: [
+            'Отказ от обязательства',
+            'Определённая законом или договором денежная сумма, которую должник обязан уплатить кредитору в случае неисполнения или ненадлежащего исполнения обязательства',
+            'Штраф от государства',
+            'Судебные издержки'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 330 ГК РФ, неустойкой (штрафом, пеней) признаётся определённая законом или договором денежная сумма, которую должник обязан уплатить кредитору при неисполнении или ненадлежащем исполнении обязательства.'
+        },
+        {
+          id: 'civil-14',
+          subject: 'civil',
+          question: 'Что такое залог?',
+          options: [
+            'Передача вещи в собственность',
+            'Способ обеспечения обязательства, при котором кредитор имеет право в случае неисполнения должником обязательства получить удовлетворение из стоимости заложенного имущества',
+            'Дарение вещи',
+            'Аренда вещи'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 334 ГК РФ, залог — это способ обеспечения обязательства, при котором кредитор-залогодержатель имеет право в случае неисполнения должником обязательства получить удовлетворение из стоимости заложенного имущества.'
+        },
+        {
+          id: 'civil-15',
+          subject: 'civil',
+          question: 'Что такое поручительство?',
+          options: [
+            'Самостоятельное обязательство',
+            'Договор, по которому поручитель обязывается отвечать перед кредитором за исполнение обязательства должника',
+            'Совместная собственность',
+            'Договор дарения'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 361 ГК РФ, по договору поручительства поручитель обязывается отвечать перед кредитором другого лица за исполнение последним его обязательства.'
+        },
+        {
+          id: 'civil-16',
+          subject: 'civil',
+          question: 'Что такое наследование?',
+          options: [
+            'Покупка имущества',
+            'Переход имущества, прав и обязанностей умершего лица к другим лицам',
+            'Дарение имущества',
+            'Аренда имущества'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 1110 ГК РФ, при наследовании имущество умершего (наследодателя) переходит к другим лицам в порядке универсального правопреемства.'
+        },
+        {
+          id: 'civil-17',
+          subject: 'civil',
+          question: 'Кто может быть наследником по закону?',
+          options: [
+            'Только родственники',
+            'Лица, указанные в завещании, или родственники наследодателя в порядке очередности',
+            'Только друзья',
+            'Только соседи'
+          ],
+          correctIndex: 1,
+          explanation: 'Наследниками по закону могут быть физические лица, находящиеся в живых к моменту открытия наследства, а также зачатые при жизни наследодателя и родившиеся живыми после его смерти.'
+        },
+        {
+          id: 'civil-18',
+          subject: 'civil',
+          question: 'Сколько очередей наследников по закону предусмотрено ГК РФ?',
+          options: [
+            '3 очереди',
+            '5 очередей',
+            '7 очередей',
+            '10 очередей'
+          ],
+          correctIndex: 2,
+          explanation: 'Гражданский кодекс РФ предусматривает 7 очередей наследников по закону. Наследники каждой последующей очереди наследуют, если нет наследников предшествующих очередей.'
+        },
+        {
+          id: 'civil-19',
+          subject: 'civil',
+          question: 'Что такое завещание?',
+          options: [
+            'Устное распоряжение',
+            'Распорядительный документ наследодателя, содержащий указания о распределении наследства',
+            'Договор между наследниками',
+            'Судебное решение'
+          ],
+          correctIndex: 1,
+          explanation: 'Согласно статье 1118 ГК РФ, завещание — это распоряжение гражданина своим имуществом на случай смерти, совершённое в установленной законом форме.'
+        },
+        {
+          id: 'civil-20',
+          subject: 'civil',
+          question: 'Что такое право собственности?',
+          options: [
+            'Право владения вещью',
+            'Право пользования вещью',
+            'Совокупность прав владения, пользования и распоряжения имуществом',
+            'Право распоряжения вещью'
+          ],
+          correctIndex: 2,
+          explanation: 'Согласно статье 209 ГК РФ, собственнику принадлежат права владения, пользования и распоряжения своим имуществом. Это триада правомочий собственности.'
+        }
+      ];
+
+      let trainerState = {
+        currentTopic: null,
+        questions: [],
+        currentIndex: 0,
+        correctAnswers: 0,
+        answered: false
+      };
+
+      function shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+      }
+
+      function startTrainer() {
+        const topicSelect = document.getElementById('trainerTopic');
+        const topic = topicSelect?.value;
+        if (!topic) return;
+
+        trainerState.currentTopic = topic;
+        trainerState.currentIndex = 0;
+        trainerState.correctAnswers = 0;
+        trainerState.answered = false;
+
+        let filteredQuestions = [];
+        if (topic === 'mixed') {
+          filteredQuestions = TRAINER_QUESTIONS;
+        } else {
+          filteredQuestions = TRAINER_QUESTIONS.filter(q => q.subject === topic);
+        }
+
+        trainerState.questions = shuffleArray(filteredQuestions).slice(0, 5);
+
+        document.getElementById('trainerTopicSelect').hidden = true;
+        document.getElementById('trainerGameArea').hidden = false;
+        document.getElementById('trainerResult').hidden = true;
+
+        renderTrainerQuestion();
+      }
+
+      function renderTrainerQuestion() {
+        const question = trainerState.questions[trainerState.currentIndex];
+        if (!question) {
+          showTrainerResult();
+          return;
+        }
+
+        document.getElementById('trainerCurrentQ').textContent = trainerState.currentIndex + 1;
+        document.getElementById('trainerQuestion').textContent = question.question;
+
+        const shuffledOptions = question.options.map((opt, idx) => ({ text: opt, originalIndex: idx }));
+        const finalOptions = shuffleArray(shuffledOptions);
+
+        document.getElementById('trainerOptions').innerHTML = finalOptions.map((opt, idx) =>
+          `<button class="trainer-option-btn" onclick="handleTrainerAnswer(${idx}, ${opt.originalIndex})">${escapeHTML(opt.text)}</button>`
+        ).join('');
+
+        document.getElementById('trainerFeedback').hidden = true;
+        document.getElementById('trainerNextBtn').hidden = true;
+        trainerState.answered = false;
+      }
+
+      function handleTrainerAnswer(selectedIndex, originalIndex) {
+        if (trainerState.answered) return;
+        trainerState.answered = true;
+
+        const question = trainerState.questions[trainerState.currentIndex];
+        const isCorrect = originalIndex === question.correctIndex;
+
+        if (isCorrect) {
+          trainerState.correctAnswers++;
+        }
+
+        const buttons = document.querySelectorAll('.trainer-option-btn');
+        buttons.forEach((btn, idx) => {
+          btn.disabled = true;
+          const btnOriginalIndex = parseInt(btn.getAttribute('onclick').match(/,\s*(\d+)\)/)[1]);
+          if (btnOriginalIndex === question.correctIndex) {
+            btn.classList.add('correct');
+          } else if (idx === selectedIndex && !isCorrect) {
+            btn.classList.add('incorrect');
+          }
+        });
+
+        const feedback = document.getElementById('trainerFeedback');
+        feedback.hidden = false;
+        feedback.className = 'trainer-feedback ' + (isCorrect ? 'correct' : 'incorrect');
+        feedback.innerHTML = `<b>${isCorrect ? '✓ Правильно!' : '✗ Неправильно'}</b><br>${escapeHTML(question.explanation)}`;
+
+        document.getElementById('trainerNextBtn').hidden = false;
+      }
+
+      function nextTrainerQuestion() {
+        trainerState.currentIndex++;
+        if (trainerState.currentIndex >= trainerState.questions.length) {
+          showTrainerResult();
+        } else {
+          renderTrainerQuestion();
+        }
+      }
+
+      function showTrainerResult() {
+        document.getElementById('trainerGameArea').hidden = true;
+        document.getElementById('trainerResult').hidden = false;
+
+        const percentage = Math.round((trainerState.correctAnswers / trainerState.questions.length) * 100);
+        document.getElementById('trainerScore').innerHTML = `
+          <p>Правильных ответов: <b>${trainerState.correctAnswers}</b> из ${trainerState.questions.length}</p>
+          <p>Процент результата: <b>${percentage}%</b></p>
+          <p>Ошибок: <b>${trainerState.questions.length - trainerState.correctAnswers}</b></p>
+        `;
+      }
+
+      function resetTrainerTopic() {
+        document.getElementById('trainerTopicSelect').hidden = false;
+        document.getElementById('trainerTopic').value = '';
+        document.getElementById('trainerGameArea').hidden = true;
+        document.getElementById('trainerResult').hidden = true;
+        trainerState.currentTopic = null;
+      }
+
+      function setActiveSection(sectionName) {
+        const activeSection = sectionName || 'home';
+        const map = new Map([
+          ['home', ['top-hero', 'notice', 'legalRadarCard', 'scoreWrap', 'scenarioGrid', 'allScenariosPanel', 'constructorCard', 'navigatorCard', 'evidenceCard']],
+          ['cases', ['historyCard', 'scoreWrap', 'previewCard', 'footer', 'constructorCard', 'navigatorCard', 'evidenceCard']],
+          ['learning', ['studentModeCard']],
+          ['more', ['profileCard', 'privacyCard', 'familyKitCard']]
+        ]);
+        document.querySelectorAll('[data-section-group]').forEach(el => {
+          const group = el.dataset.sectionGroup;
+          const shouldShow = map.get(activeSection)?.includes(el.id || '') || group === activeSection;
+          el.hidden = !shouldShow;
+        });
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+          const active = btn.dataset.section === activeSection;
+          btn.classList.toggle('is-active', active);
+          if (active) btn.setAttribute('aria-current','page'); else btn.removeAttribute('aria-current');
+        });
+        const studentCard = document.getElementById('studentModeCard');
+        if (studentCard) studentCard.hidden = activeSection !== 'learning';
+        if (activeSection === 'learning' && typeof renderStudentLessons === 'function') renderStudentLessons();
+        if (activeSection === 'home' && typeof renderScenarios === 'function') renderScenarios();
+        const target = document.querySelector('[data-section="'+activeSection+'"]');
+        if (target) target.blur();
+      }
+
+      function toggleAllScenarios() {
+        const panel = document.getElementById('allScenariosPanel');
+        const toggle = document.getElementById('allScenariosToggle');
+        if (!panel || !toggle) return;
+        const opening = panel.hidden;
+        panel.hidden = !opening;
+        toggle.setAttribute('aria-expanded', String(opening));
+        toggle.textContent = opening ? 'Скрыть все сценарии ↑' : 'Все сценарии →';
+        if (opening) panel.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'});
+      }
+
+      function openQuickRoute(kind) {
+        // Явное соответствие быстрых входов ID сценариев (вместо неоднозначного поиска по regex)
+        const routeMap = {
+          police: 'police',
+          work: 'labor',
+          housing: 'housing',
+          debts: 'debts',
+          dtp: 'dtp'
+        };
+
+        if (kind === 'document') {
+          if (currentScenario && currentScenario.id) {
+            setActiveSection('cases');
+            const constructor = document.getElementById('constructorCard');
+            if (constructor) { constructor.hidden = false; constructor.style.display = ''; }
+            document.getElementById('constructorCard')?.scrollIntoView({behavior:'smooth',block:'start'});
+          } else {
+            setActiveSection('home');
+            const panel = document.getElementById('allScenariosPanel');
+            if (panel && panel.hidden) toggleAllScenarios();
+            showNotification('Выберите существующий сценарий — после этого можно собрать документ.', 'info');
+          }
+          return;
+        }
+
+        const targetId = routeMap[kind];
+        if (targetId && SCENARIOS[targetId]) {
+          if (typeof selectScenario === 'function') selectScenario(targetId);
+          setActiveSection('home');
+          document.getElementById('navigatorCard')?.scrollIntoView({behavior:'smooth',block:'start'});
+          return;
+        }
+
+        setActiveSection('home');
+        const panel = document.getElementById('allScenariosPanel');
+        if (panel && panel.hidden) toggleAllScenarios();
+        showNotification('Сценарий для этого быстрого входа не найден. Откройте «Все сценарии» и выберите подходящий маршрут.', 'info');
+      }
+
+      // ==========================================
+      // 🧠 21. PRO STATUS & PAYWALL (v3.5)
+      // ==========================================
+      function checkIsPro() {
+        // Тестовый флаг для разработчиков: установить lawyer_pro_status = true в localStorage
+        const testFlag = localStorage.getItem('lawyer_pro_status');
+        if (testFlag === 'true') return true;
+        return false;
+      }
+
+      function showPaywallModal() {
+        const existing = document.getElementById('paywallModal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'paywallModal';
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(10, 16, 28, 0.9);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 20px;
+        `;
+
+        modal.innerHTML = `
+          <div style="
+            background: linear-gradient(145deg, #18283b, #20344a);
+            border: 1px solid rgba(231, 190, 103, 0.3);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            color: #edf3ff;
+          ">
+            <h2 style="margin: 0 0 16px; color: #f0d28b; font-size: 24px;">Ваш документ готов!</h2>
+            <p style="margin: 0 0 24px; color: #c5d1e1; line-height: 1.5;">
+              Чтобы скачать документ в PDF без водяных знаков и ограничений, оформите PRO-доступ.
+            </p>
+            <p style="margin: 0 0 24px; color: #e7be67; font-size: 14px;">
+              Пока мы тестируем систему — оставьте email, и мы сообщим о запуске.
+            </p>
+            <div style="display: flex; gap: 12px; flex-direction: column;">
+              <button onclick="showPricingModal()" style="
+                padding: 12px 24px;
+                background: linear-gradient(145deg, #e7be67, #c9a855);
+                border: none;
+                border-radius: 8px;
+                color: #0c1426;
+                font-weight: 600;
+                font-size: 16px;
+                cursor: pointer;
+                transition: transform 0.18s;
+              ">Оформить PRO</button>
+              <button onclick="closePaywallModal()" style="
+                padding: 12px 24px;
+                background: transparent;
+                border: 1px solid rgba(166, 190, 220, 0.3);
+                border-radius: 8px;
+                color: #c5d1e1;
+                font-weight: 500;
+                font-size: 16px;
+                cursor: pointer;
+                transition: background 0.18s;
+              ">Закрыть</button>
+            </div>
+          </div>
+        `;
+
+        document.body.appendChild(modal);
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closePaywallModal();
+        });
+      }
+
+      function closePaywallModal() {
+        const modal = document.getElementById('paywallModal');
+        if (modal) modal.remove();
+      }
+
+      function showPricingModal() {
+        closePaywallModal();
+        const existing = document.getElementById('pricingModal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'pricingModal';
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(10, 16, 28, 0.9);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 20px;
+        `;
+
+        modal.innerHTML = `
+          <div style="
+            background: linear-gradient(145deg, #18283b, #20344a);
+            border: 1px solid rgba(231, 190, 103, 0.3);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 450px;
+            width: 100%;
+            color: #edf3ff;
+          ">
+            <h2 style="margin: 0 0 24px; color: #f0d28b; font-size: 24px; text-align: center;">Тарифы</h2>
+            
+            <div style="
+              background: rgba(38, 57, 78, 0.5);
+              border: 1px solid rgba(166, 190, 220, 0.2);
+              border-radius: 12px;
+              padding: 20px;
+              margin-bottom: 16px;
+            ">
+              <h3 style="margin: 0 0 8px; color: #c5d1e1; font-size: 18px;">FREE</h3>
+              <p style="margin: 0 0 12px; color: #9aa8c0; font-size: 32px; font-weight: 600;">0 ₽</p>
+              <ul style="margin: 0; padding-left: 20px; color: #c5d1e1; font-size: 14px; line-height: 1.6;">
+                <li>Базовые сценарии</li>
+                <li>Копирование текста</li>
+                <li>Тренажер (1 раунд/день)</li>
+              </ul>
+            </div>
+
+            <div style="
+              background: rgba(231, 190, 103, 0.1);
+              border: 2px solid #e7be67;
+              border-radius: 12px;
+              padding: 20px;
+              margin-bottom: 24px;
+            ">
+              <h3 style="margin: 0 0 8px; color: #e7be67; font-size: 18px;">PRO</h3>
+              <p style="margin: 0 0 12px; color: #e7be67; font-size: 32px; font-weight: 600;">299 ₽<span style="font-size: 14px; font-weight: 400; color: #c5d1e1;">/мес</span></p>
+              <ul style="margin: 0; padding-left: 20px; color: #edf3ff; font-size: 14px; line-height: 1.6;">
+                <li>Все сценарии</li>
+                <li>Скачивание PDF без ограничений</li>
+                <li>Сохранение истории в облаке</li>
+                <li>Экспорт JSON</li>
+              </ul>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+              <input type="email" id="proEmail" placeholder="Ваш email для уведомления" style="
+                width: 100%;
+                padding: 12px;
+                background: rgba(38, 57, 78, 0.5);
+                border: 1px solid rgba(166, 190, 220, 0.3);
+                border-radius: 8px;
+                color: #edf3ff;
+                font-size: 14px;
+                box-sizing: border-box;
+              ">
+            </div>
+
+            <button onclick="handleProSignup()" style="
+              width: 100%;
+              padding: 14px 24px;
+              background: linear-gradient(145deg, #e7be67, #c9a855);
+              border: none;
+              border-radius: 8px;
+              color: #0c1426;
+              font-weight: 600;
+              font-size: 16px;
+              cursor: pointer;
+              transition: transform 0.18s;
+              margin-bottom: 12px;
+            ">Оформить PRO</button>
+            <button onclick="closePricingModal()" style="
+              width: 100%;
+              padding: 12px 24px;
+              background: transparent;
+              border: 1px solid rgba(166, 190, 220, 0.3);
+              border-radius: 8px;
+              color: #c5d1e1;
+              font-weight: 500;
+              font-size: 16px;
+              cursor: pointer;
+              transition: background 0.18s;
+            ">Закрыть</button>
+          </div>
+        `;
+
+        document.body.appendChild(modal);
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closePricingModal();
+        });
+      }
+
+      function closePricingModal() {
+        const modal = document.getElementById('pricingModal');
+        if (modal) modal.remove();
+      }
+
+      function handleProSignup() {
+        const email = document.getElementById('proEmail').value;
+        if (!email || !email.includes('@')) {
+          alert('Пожалуйста, введите корректный email');
+          return;
+        }
+        alert('Оплата временно недоступна. Мы тестируем функционал. Ваш email: ' + email + '. Мы сообщим о запуске.');
+        closePricingModal();
+      }
+
+      function init() {
+        hydrateIcons();
+        renderScenarios();
+        loadProfile();
+        loadXP();
+        renderEvidence();
+        renderHistory();
+        renderScore([]);
+        checkFontStatus();
+        renderFamilyKit();
+
+        document.querySelectorAll('[data-section]').forEach(btn => {
+          btn.addEventListener('click', () => setActiveSection(btn.dataset.section));
+        });
+
+        setActiveSection('home');
+        const allPanel = document.getElementById('allScenariosPanel');
+        if (allPanel) allPanel.hidden = true;
+      }
+
+      function checkFontStatus() {
+        if (window.LAWYER_FONT_B64) {
+          console.log("✅ lawyer-font.js загружен — PDF с кириллицей работает.");
+        } else {
+          console.warn("⚠️ lawyer-font.js НЕ загружен — PDF будет без кириллицы. Проверь, что файл лежит рядом с index.html.");
+        }
+      }
+
+      // ==========================================
+      // 🧠 9. РЕНДЕР СЦЕНАРИЕВ
+      // ==========================================
+      function renderScenarios() {
+        const grid = document.getElementById('scenarioGrid');
+        grid.innerHTML = Object.values(SCENARIOS).map(s => `
+          <div class="scenario-btn ${currentScenario?.id === s.id ? 'active' : ''}" onclick="selectScenario('${s.id}')">
+            <div class="scenario-icon">${iconSvg(s.icon || "scale")}</div>
+            <div>${String(s.title || '').replace(/^[^\p{L}\p{N}]+/u, '').trim()}</div>
+            <div class="scenario-xp">${s.xp} XP</div>
+          </div>
+        `).join('');
+      }
+
+      function selectScenario(id) {
+        currentScenario = SCENARIOS[id];
+        stateMachine = new StateMachine(id);
+
+        renderScenarios();
+
+        ['navigatorCard','evidenceCard','previewCard','constructorCard'].forEach(id => {
+          const card = document.getElementById(id);
+          if (card) { card.hidden = false; card.style.display = ''; }
+        });
+
+        renderDialog();
+        renderActionButtons();
+        renderEvidence();
+        showNotification(`Выбрано: ${currentScenario.title}`, 'info');
+      }
+
+      // ==========================================
+      // 🧠 10. ДИАЛОГОВЫЙ НАВИГАТОР
+      // ==========================================
+      function renderDialog() {
+        const container = document.getElementById('dialogContainer');
+        const step = stateMachine.getCurrentStep();
+
+        if (!step) {
+          container.innerHTML = '<div style="color: #48bb78; font-weight: 600; padding: 8px;">✅ Все вопросы заданы! Переходите к фиксации доказательств.</div>';
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="dialog-box">
+            ${stateMachine.history.length ? '<button type="button" class="sec navigator-back" onclick="goBackInNavigator()"><span class="ui-icon" data-icon="arrow-left"></span> Назад к предыдущему вопросу</button>' : ''}
+            <div class="dialog-question">${step.question}</div>
+            <div class="options-grid">
+              ${step.options.map((opt, i) => `
+                <button onclick="handleOption(${i})">${opt.label}${opt.tag ? `<span class="tag">${opt.tag}</span>` : ''}</button>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      function handleOption(index) {
+        stateMachine.selectOption(index);
+        renderDialog();
+        renderActionButtons();
+      }
+
+      function goBackInNavigator() {
+        if (!stateMachine || !stateMachine.goBack()) return;
+        renderDialog();
+        renderActionButtons();
+      }
+
+      // ==========================================
+      // 🧠 11. КНОПКИ ФИКСАЦИИ (контекстные)
+      // ==========================================
+      function renderActionButtons() {
+        const container = document.getElementById('actionButtons');
+        const context = stateMachine.getContext();
+
+        let buttons = `
+          <button onclick="addGeo()" style="margin-right: 8px;">📍 GPS-координаты</button>
+          <button onclick="addNote()" class="sec" style="margin-right: 8px;">📝 Запись</button>
+          <button onclick="addPhoto()" class="sec" style="margin-right: 8px;">📎 Фото/файл</button>
+        `;
+
+        if (context.tags.includes('Давление') || context.tags.includes('Угрозы')) {
+          buttons += `<button onclick="addNoteWithMeta('Разговор с начальником')" class="sec" style="margin: 4px 0;">🎤 Записать разговор</button>`;
+        }
+        if (context.tags.includes('Статья') || context.tags.includes('Сокращение')) {
+          buttons += `<button onclick="addNoteWithMeta('Копия приказа')" class="sec" style="margin: 4px 0;">📄 Запросить приказ</button>`;
+        }
+        if (currentScenario && currentScenario.id === 'dtp') {
+          buttons += `<button onclick="addNoteWithMeta('Схема ДТП')" class="sec" style="margin: 4px 0;">🗺️ Схема ДТП</button>`;
+        }
+
+        container.innerHTML = buttons;
+      }
+
+      // ==========================================
+      // 🧠 12. МЕТОДЫ ФИКСАЦИИ
+      // ==========================================
+      function addGeo() {
+        if (!navigator.geolocation) {
+          alert('Геолокация не поддерживается');
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const coords = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+            await EvidenceLogger.add('geo', { coords, accuracyMeters: Math.round(pos.coords.accuracy) }, stateMachine.getContext());
+            showNotification('Координаты сохранены с оценкой точности устройства.', 'success');
+          },
+          (err) => {
+            alert('Не удалось получить координаты. Проверьте разрешение, соединение и настройки устройства.');
+          }
+        );
+      }
+
+      function addNote() {
+        const text = prompt('Опишите что произошло (факты, время, участники):');
+        if (text) {
+          EvidenceLogger.add('note', { text }, stateMachine.getContext());
+          showNotification('📝 Запись добавлена!', 'success');
+        }
+      }
+
+      function addNoteWithMeta(meta) {
+        const text = prompt(`Опишите ${meta.toLowerCase()}:`);
+        if (text) {
+          EvidenceLogger.add('note', { text, meta }, stateMachine.getContext());
+          showNotification(`📝 ${meta} зафиксирована!`, 'success');
+        }
+      }
+
+      function addPhoto() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*,.pdf,.doc,.docx,.txt,.mp4,.mov';
+        input.onchange = async () => {
+          const file = input.files && input.files[0];
+          if (!file) return;
+          // Предохранитель от случайного заполнения хранилища очень большими файлами.
+          const MAX_FILE_SIZE = 25 * 1024 * 1024;
+          if (file.size > MAX_FILE_SIZE) {
+            alert('Файл больше 25 МБ. Выберите файл меньшего размера.');
+            return;
+          }
+          const fileId = `file-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+          try {
+            await EvidenceFiles.put(fileId, file);
+            await EvidenceLogger.add('photo', {
+              fileId,
+              filename: file.name,
+              size: (file.size / 1024).toFixed(1) + ' KB',
+              sizeBytes: file.size,
+              type: file.type || 'application/octet-stream',
+              originalStored: true
+            }, stateMachine.getContext());
+            showNotification('Оригинал файла сохранён в хранилище этого браузера. Сделайте резервную копию.', 'success');
+          } catch (err) {
+            console.error('Ошибка сохранения оригинала:', err);
+            showNotification('Не удалось сохранить файл. Освободите место или скачайте файл отдельно и попробуйте снова.', 'warning');
+          }
+        };
+        input.click();
+      }
+
+      function addWitness() {
+        const name = document.getElementById('w_name').value;
+        const phone = document.getElementById('w_phone').value;
+
+        if (!name) {
+          alert('Введите имя свидетеля');
+          return;
+        }
+
+        EvidenceLogger.add('witness', { name, phone }, stateMachine.getContext());
+        document.getElementById('w_name').value = '';
+        document.getElementById('w_phone').value = '';
+        showNotification('👤 Свидетель добавлен!', 'success');
+      }
+
+      // ==========================================
+      // 🧠 13. РЕНДЕР ДОКАЗАТЕЛЬСТВ + ВАЛИДАЦИЯ
+      // ==========================================
+      async function renderEvidence() {
+        const allEvs = await EvidenceLogger.list();
+        const evs = currentScenario
+          ? allEvs.filter(e => e.scenarioId === currentScenario.id)
+          : allEvs;
+        const list = document.getElementById('evidenceList');
+
+        if (evs.length === 0) {
+          list.innerHTML = '<li style="color: #9cabc4; text-align: center;">Пока нет записей для этого сценария. Выберите только те материалы, которые безопасно и законно фиксировать.</li>';
+          renderScore(evs);
+          const warningDiv = document.getElementById('validationWarning');
+          if (currentScenario && warningDiv) {
+            const warnings = EvidenceLogger.validate(currentScenario.id);
+            warningDiv.style.display = warnings.length ? 'block' : 'none';
+            warningDiv.textContent = warnings.join(' ');
+          }
+          return;
+        }
+
+        list.innerHTML = evs.map(e => {
+          const date = new Date(e.ts).toLocaleString('ru-RU', {
+            day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+          });
+          let content = '';
+          if (e.type === 'geo') content = `📍 ${escapeHTML(e.payload.coords || '')}`;
+          if (e.type === 'note') {
+            const noteText = String(e.payload.text || '');
+            content = `📝 ${escapeHTML(noteText.substring(0, 50))}${noteText.length > 50 ? '...' : ''}`;
+          }
+          if (e.type === 'witness') content = `👤 ${escapeHTML(e.payload.name || '')} (${escapeHTML(e.payload.phone || '')})`;
+          if (e.type === 'photo') content = `📎 ${escapeHTML(e.payload.filename || '')}${e.payload.originalStored ? ' · оригинал сохранён' : ' · сохранены только сведения о файле'}`;
+
+          return `
+            <li class="${e.type}">
+              <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div>
+                  <div style="font-weight: 600; margin-bottom: 4px;">${date}</div>
+                  <div>${content}</div>
+                  ${e.context && e.context.tags && e.context.tags.length ? `<div style="margin-top: 4px;">${e.context.tags.map(t => `<span class="tag">${escapeHTML(t)}</span>`).join('')}</div>` : ''}
+                </div>
+                <button onclick="EvidenceLogger.delete(${e.id})" class="sec" style="padding: 4px 8px; font-size: 12px;">✕</button>
+              </div>
+            </li>
+          `;
+        }).join('');
+
+        // Health Score
+        renderScore(evs);
+
+        // Валидация
+        if (currentScenario) {
+          const warnings = EvidenceLogger.validate(currentScenario.id);
+          const warningDiv = document.getElementById('validationWarning');
+          if (warnings.length > 0) {
+            warningDiv.style.display = 'block';
+            warningDiv.innerHTML = warnings.join('<br>');
+          } else {
+            warningDiv.style.display = 'none';
+          }
+        }
+      }
+
+      // ==========================================
+      // 🧠 14. ГЕНЕРАЦИЯ ДОКУМЕНТА
+      // ==========================================
+      function generateDocument() {
+        if (!currentScenario) {
+          alert('Выберите сценарий');
+          return;
+        }
+
+        const profile = getProfile();
+        const evidence = JSON.parse(localStorage.getItem('lawyer_evidence') || '[]');
+        const context = stateMachine.getContext();
+        const selectedTypes = Array.from(document.querySelectorAll('.blkChk:checked')).map(c => c.value);
+
+        const doc = DocumentAssembler.assemble(currentScenario.id, profile, evidence, context, selectedTypes);
+        document.getElementById('docPreview').textContent = doc;
+
+        // Сохраняем в историю
+        saveToHistory(currentScenario.id, doc);
+
+        // XP выдаётся один раз за сценарий: повторная генерация документа не накручивает опыт.
+        const xpAwarded = awardScenarioXP(currentScenario.id, currentScenario.xp);
+
+        showNotification(xpAwarded > 0
+          ? `Документ сгенерирован! +${xpAwarded} XP за первое завершение сценария.`
+          : 'Документ сгенерирован. Опыт за этот сценарий уже получен.', 'success');
+      }
+
+      // ==========================================
+      // 🧠 15. КОПИРОВАНИЕ В БУФЕР
+      // ==========================================
+      function copyToClipboard() {
+        const content = document.getElementById('docPreview').textContent;
+        if (!content) {
+          alert('Сначала сгенерируйте документ');
+          return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(content).then(() => {
+            showNotification('📋 Текст скопирован! Можно отправить юристу.', 'success');
+          }).catch(() => {
+            fallbackCopy(content);
+          });
+        } else {
+          fallbackCopy(content);
+        }
+      }
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showNotification('📋 Текст скопирован (fallback)!', 'success');
+        } catch (e) {
+          alert('Не удалось скопировать. Используйте «Скачать (.txt)».');
+        }
+        document.body.removeChild(ta);
+      }
+
+      // ==========================================
+      // 🧠 16. ЭКСПОРТ PDF (С КИРИЛЛИЦЕЙ + FALLBACK)
+      // ==========================================
+      function exportPDF() {
+        const content = document.getElementById('docPreview').textContent;
+        if (!content) {
+          alert('Сначала сгенерируйте документ');
+          return;
+        }
+
+        if (!checkIsPro()) {
+          showPaywallModal();
+          return;
+        }
+
+        if (!window.jspdf) {
+          alert('PDF-движок не загрузился. Используйте «Скачать (.txt)».');
+          return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+
+        // 🔤 ПОДКЛЮЧЕНИЕ ШРИФТА DEJAVU (кириллица)
+        let fontLoaded = false;
+        if (window.LAWYER_FONT_B64) {
+          try {
+            pdf.addFileToVFS("DejaVuSans.ttf", window.LAWYER_FONT_B64);
+            pdf.addFont("DejaVuSans.ttf", "DejaVu", "normal");
+            pdf.setFont("DejaVu");
+            fontLoaded = true;
+          } catch (e) {
+            console.warn("Не удалось подключить шрифт DejaVu:", e);
+          }
+        }
+
+        if (!fontLoaded) {
+          console.warn("Шрифт кириллицы не загружен. PDF будет со стандартным шрифтом (кириллица может отображаться некорректно).");
+          showNotification('⚠️ Шрифт не загружен — PDF может быть без кириллицы', 'warning');
+        }
+
+        pdf.setFontSize(11);
+        const lines = pdf.splitTextToSize(content, 180);
+        let y = 15;
+        lines.forEach(line => {
+          if (y > 285) {
+            pdf.addPage();
+            y = 15;
+          }
+          pdf.text(line, 15, y);
+          y += 6;
+        });
+
+        const safeName = currentScenario ? currentScenario.id : 'document';
+        pdf.save(`document_${safeName}_${Date.now()}.pdf`);
+        showNotification('<span class="ui-icon" data-icon="file-down"></span> PDF скачан!', 'success');
+      }
+
+      // ==========================================
+      // 🧠 17. ЭКСПОРТ TXT
+      // ==========================================
+      function exportTXT() {
+        const content = document.getElementById('docPreview').textContent;
+        if (!content) {
+          alert('Сначала сгенерируйте документ');
+          return;
+        }
+
+        if (!checkIsPro()) {
+          showPaywallModal();
+          return;
+        }
+
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const safeName = currentScenario ? currentScenario.id : 'document';
+        a.download = `document_${safeName}_${Date.now()}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showNotification('<span class="ui-icon" data-icon="file-text"></span> TXT скачан!', 'success');
+      }
+
+      // ==========================================
+      // 🧠 18. ЭКСПОРТ JSON (резервная копия)
+      // ==========================================
+      function exportJSON() {
+        if (!currentScenario) {
+          alert('Выберите сценарий');
+          return;
+        }
+
+        if (!checkIsPro()) {
+          showPaywallModal();
+          return;
+        }
+
+        const data = {
+          scenario: currentScenario.id,
+          profile: getProfile(),
+          evidence: JSON.parse(localStorage.getItem('lawyer_evidence') || '[]'),
+          context: stateMachine ? stateMachine.getContext() : {},
+          exportedAt: new Date().toISOString()
+        };
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_${currentScenario.id}_${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showNotification('<span class="ui-icon" data-icon="database"></span> JSON экспортирован!', 'success');
+      }
+
+      // ==========================================
+      // 🧠 19. ПРОФИЛЬ
+      // ==========================================
+      function saveProfile() {
+        const profile = {
+          fio: document.getElementById('fio').value,
+          address: document.getElementById('address').value,
+          phone: document.getElementById('phone').value,
+          company: prompt('Название организации (если есть):') || ''
+        };
+        localStorage.setItem('lawyer_profile', JSON.stringify(profile));
+        showNotification('💾 Профиль сохранен!', 'success');
+      }
+
+      function loadProfile() {
+        const profile = JSON.parse(localStorage.getItem('lawyer_profile') || '{}');
+        document.getElementById('fio').value = profile.fio || '';
+        document.getElementById('address').value = profile.address || '';
+        document.getElementById('phone').value = profile.phone || '';
+      }
+
+      function getProfile() {
+        return {
+          fio: document.getElementById('fio').value,
+          address: document.getElementById('address').value,
+          phone: document.getElementById('phone').value,
+          company: (JSON.parse(localStorage.getItem('lawyer_profile') || '{}').company) || ''
+        };
+      }
+
+      // ==========================================
+      // 🧠 20. XP
+      // ==========================================
+      function loadXP() {
+        const xp = parseInt(localStorage.getItem('lawyer_xp') || '0');
+        document.getElementById('xpValue').textContent = xp;
+      }
+
+      function addXP(amount) {
+        const current = parseInt(localStorage.getItem('lawyer_xp') || '0');
+        const newXP = current + amount;
+        localStorage.setItem('lawyer_xp', newXP);
+        document.getElementById('xpValue').textContent = newXP;
+
+        if (newXP >= 100 && current < 100) {
+          showNotification('🎉 Новый уровень! Вы достигли 100 XP!', 'success');
+        }
+        if (newXP >= 500 && current < 500) {
+          showNotification('🏆 Мастер права! 500 XP!', 'success');
+        }
+      }
+
+      function awardScenarioXP(scenarioId, amount) {
+        if (!scenarioId || !Number.isFinite(Number(amount)) || Number(amount) <= 0) return 0;
+        let completed = [];
+        try {
+          const saved = JSON.parse(localStorage.getItem('lawyer_xp_completed') || '[]');
+          if (Array.isArray(saved)) completed = saved.filter(id => typeof id === 'string');
+        } catch (_) {}
+        if (completed.includes(scenarioId)) return 0;
+        completed.push(scenarioId);
+        localStorage.setItem('lawyer_xp_completed', JSON.stringify(completed));
+        addXP(Number(amount));
+        return Number(amount);
+      }
+
+      // ==========================================
+      // 🧠 21. СБРОС
+      // ==========================================
+      function resetAll() {
+        if (confirm('Удалить все доказательства и начать заново?')) {
+          EvidenceLogger.clear();
+          document.getElementById('docPreview').textContent = '';
+          if (stateMachine && currentScenario) {
+            stateMachine = new StateMachine(currentScenario.id);
+            renderDialog();
+            renderActionButtons();
+          }
+          showNotification('🗑 Все сброшено', 'info');
+        }
+      }
+
+      // ==========================================
+      // 🧠 22. УВЕДОМЛЕНИЯ
+      // ==========================================
+      function showNotification(message, type = 'info') {
+        const colors = {
+          success: '#48bb78',
+          info: '#4299e1',
+          warning: '#ed8936',
+          error: '#fc8181'
+        };
+
+        const notif = document.createElement('div');
+        notif.className = 'notification';
+        notif.style.background = colors[type] || colors.info;
+        notif.textContent = message;
+        document.body.appendChild(notif);
+
+        setTimeout(() => notif.remove(), 3000);
+      }
+
+      // ==========================================
+      // 🧠 23. INIT
+      // ==========================================
+      window.addEventListener('DOMContentLoaded', () => {
+        // Сначала загружаем модульные сценарии, затем инициализируем приложение
+        if (window.loadLawyerModules) window.loadLawyerModules();
+       init();
+        });
+    </script>
+</body>
+</html>

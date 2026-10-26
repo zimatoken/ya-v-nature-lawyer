@@ -1,0 +1,25 @@
+# ===== ОТЧЁТЫ И АУДИТЫ (локальные, в репозиторий не идут) =====
+AUDIT*.md
+CHANGES_v*.md
+DEFECTS*.md
+FINAL_*.md
+FIX_REPORT*.md
+QA_v*.md
+QUESTION_*.md
+QUICK_ROUTE_ACCEPTANCE.md
+REGRESSION_TEST.md
+REQUIRED_FIXES*.md
+SERVICE_WORKER_VERIFICATION.md
+LEGAL_SOURCES*.md
+POLICE_LEGAL_REVIEW.md
+_audit_*.mjs
+
+# ===== ОС / РЕДАКТОРЫ =====
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# ===== NODE (если не используешь сборку) =====
+node_modules/
